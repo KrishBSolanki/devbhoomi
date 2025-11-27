@@ -144,7 +144,7 @@
                         <div class="carousel-caption">
                             <h3>{{ hotel.name }}</h3>
                             <p>{{ hotel.description|default:'Premium stay in Dwarka'|truncatewords:20 }}</p>
-                            <a href="{% url 'bookings:booking_page' hotel.slug %}" class="btn btn-light mt-3">View Details</a>
+                           <a href="{% url 'hotels:details' hotel.slug %}" class="btn btn-light mt-3">View Details</a>
                         </div>
                     </div>
                     {% endfor %}
@@ -203,8 +203,7 @@
                                 <div class="hotel-price">
                                     ₹{{ hotel.discounted_price|floatformat:0 }}<span>/night</span>
                                 </div>
-                                <a href="{% url 'bookings:booking_page' hotel.slug %}" class="btn-view-details">View Details</a>
-                            </div>
+<a href="{% url 'hotels:details' hotel.slug %}" class="btn-view-details">View Details</a>                            </div>
                         </div>
                     </div>
                 </div>
