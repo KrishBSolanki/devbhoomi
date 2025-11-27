@@ -106,7 +106,7 @@ class Hotel(models.Model):
     )
     
     # Images
-    main_image = models.ImageField(
+    main_image = models.FileField(
         upload_to='hotels/main/', 
         blank=True, 
         null=True
@@ -146,7 +146,7 @@ class HotelImage(models.Model):
         related_name='images', 
         on_delete=models.CASCADE
     )
-    image = models.ImageField(upload_to='hotels/gallery/')
+    image = models.FileField(upload_to='hotels/gallery/')
     caption = models.CharField(max_length=200, blank=True)
     order = models.IntegerField(default=0, help_text="Display order")
     
