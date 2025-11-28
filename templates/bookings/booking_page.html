@@ -192,6 +192,51 @@
                     </div>
                     {% endif %}
 
+                    <!-- Booking Details Form -->
+                    <div class="booking-card mb-4" id="booking-details-form-card">
+                        <h2 class="section-title">
+                            <i class="fas fa-calendar-check"></i>
+                            Booking Details
+                        </h2>
+                        <form id="bookingDetailsForm" autocomplete="off">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">Check-in</label>
+                                    <input type="date" class="form-control" id="bookingCheckIn" name="checkin" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Check-out</label>
+                                    <input type="date" class="form-control" id="bookingCheckOut" name="checkout" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Guests</label>
+                                    <input type="number" class="form-control" id="bookingGuests" name="guests" min="1" value="{{ adults|default:2|add:children|default:0 }}">
+                                    <div class="form-text text-danger" id="booking-guest-error"></div>
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-4">
+                                    <label class="form-label">Adults</label>
+                                    <input type="number" class="form-control" id="bookingAdults" name="adults" min="1" value="{{ adults|default:2 }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Children</label>
+                                    <input type="number" class="form-control" id="bookingChildren" name="children" min="0" value="{{ children|default:0 }}">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Rooms</label>
+                                    <input type="number" class="form-control" id="bookingRooms" name="rooms" min="1" max="10" value="{{ rooms|default:1 }}">
+                                    <div class="form-text text-danger" id="booking-room-error"></div>
+                                </div>
+                            </div>
+                            <div class="sticky-footer mt-3">
+                                <button type="button" class="btn-continue w-100" id="bookingDetailsContinueBtn">
+                                    Continue
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                     <!-- Informational cards -->
                     <div class="booking-card mb-4">
                         <div class="row g-4">
@@ -354,8 +399,8 @@
 
                         <h5 class="fw-bold mb-3">Price Details</h5>
                         <div class="price-row">
-                            <span class="price-label">Room price ({{ booking_summary.nights }} night{% if booking_summary.nights > 1 %}s{% endif %})</span>
-                            <span class="price-value">₹{{ pricing.base_price|floatformat:0 }}</span>
+                            <span class="price-label">Base Price ({{ booking_summary.nights }} night{% if booking_summary.nights > 1 %}s{% endif %})<br><span class="text-muted small">(Room price × Rooms × Nights)</span></span>
+                            <span class="price-value base-amount">₹{{ pricing.base_price|floatformat:0 }}</span>
                         </div>
                         {% if pricing.discount %}
                         <div class="price-row">
@@ -370,8 +415,8 @@
                         </div>
                         {% endif %}
                         <div class="price-row">
-                            <span class="price-label">Taxes & Fees</span>
-                            <span class="price-value">₹{{ pricing.taxes|floatformat:0 }}</span>
+                            <span class="price-label">Taxes & Fees <span class="tax-detail">(12%)</span></span>
+                            <span class="price-value tax-amount">₹{{ pricing.taxes|floatformat:0 }}</span>
                         </div>
                         <div class="total-price">
                             <span class="label">Total Amount</span>
@@ -416,10 +461,261 @@
 
                 guestForm.querySelectorAll('.form-control, .form-select').forEach(function(field) {
                     field.classList.toggle('is-invalid', !field.checkValidity());
-                    field.classList.toggle('is-valid', field.checkValidity());
-                });
             });
         });
     </script>
-</body>
-</html>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookingForm = document.getElementById('bookingDetailsForm');
+            if (!bookingForm) return;
+
+            const checkIn = bookingForm.querySelector('#bookingCheckIn');
+            const checkOut = bookingForm.querySelector('#bookingCheckOut');
+            const guests = bookingForm.querySelector('#bookingGuests');
+            const adults = bookingForm.querySelector('#bookingAdults');
+            const children = bookingForm.querySelector('#bookingChildren');
+            const rooms = bookingForm.querySelector('#bookingRooms');
+            const guestError = bookingForm.querySelector('#booking-guest-error');
+            const roomError = bookingForm.querySelector('#booking-room-error');
+            const continueBtn = bookingForm.querySelector('#bookingDetailsContinueBtn');
+
+            // Sidebar summary fields
+            const summaryCheckin = document.querySelector('.d-flex .fw-semibold');
+            const summaryCheckout = document.querySelector('.d-flex .text-end .fw-semibold');
+            const summaryNights = document.querySelector('.summary-pill div:nth-child(1) strong');
+            const summaryRooms = document.querySelector('.summary-pill div:nth-child(2) strong');
+            const summaryGuests = document.querySelector('.summary-pill div:nth-child(3)');
+
+            // Date logic
+            const setInitialDateLimits = () => {
+                const today = new Date().toISOString().split('T')[0];
+                if (checkIn) {
+                    checkIn.min = today;
+                    if (!checkIn.value) checkIn.value = today;
+                }
+                if (checkOut) {
+                    checkOut.min = checkIn?.value || today;
+                }
+            };
+            const enforceCheckoutAfterCheckin = () => {
+                if (!checkIn || !checkOut) return;
+                checkOut.min = checkIn.value;
+                if (checkOut.value && checkOut.value < checkIn.value) {
+                    checkOut.value = checkIn.value;
+                }
+            };
+            setInitialDateLimits();
+            checkIn?.addEventListener('change', enforceCheckoutAfterCheckin);
+
+            // Validation and sync logic
+            const ROOM_LIMIT = 10;
+            const MAX_ADULTS_PER_ROOM = 3;
+            const MAX_CHILDREN_PER_ROOM = 1;
+            const MAX_GUESTS_PER_ROOM = MAX_ADULTS_PER_ROOM + MAX_CHILDREN_PER_ROOM;
+
+            const sanitizeDigits = (input, maxValue = null) => {
+                if (!input) return '';
+                let digits = input.value.replace(/[^0-9]/g, '');
+                if (maxValue !== null && digits !== '') {
+                    const parsed = parseInt(digits, 10);
+                    if (!isNaN(parsed) && parsed > maxValue) {
+                        digits = maxValue.toString();
+                    }
+                }
+                if (input.value !== digits) input.value = digits;
+                return digits;
+            };
+            const readValue = (input, { allowEmpty = false, maxValue = null } = {}) => {
+                const digits = sanitizeDigits(input, maxValue);
+                if (digits === '') return allowEmpty ? null : 0;
+                return parseInt(digits, 10);
+            };
+            const enforceBoundsOnBlur = (input, min, max = null) => {
+                if (!input) return min;
+                let value = readValue(input, { allowEmpty: true, maxValue: max });
+                if (value === null || isNaN(value)) value = min;
+                if (value < min) value = min;
+                if (max !== null && value > max) value = max;
+                input.value = value;
+                return value;
+            };
+            const suggestRooms = () => {
+                let a = parseInt(adults.value) || 0;
+                let c = parseInt(children.value) || 0;
+                let g = a + c;
+                let minRoomsByCapacity = Math.ceil(g / MAX_PERSONS_PER_ROOM); 
+                let r = parseInt(rooms.value) || 1;
+                if (r < minRoomsByCapacity) {
+                    rooms.value = minRoomsByCapacity;
+                    if (roomError) roomError.textContent = `Suggested: ${minRoomsByCapacity} room${minRoomsByCapacity > 1 ? 's' : ''} (max ${MAX_PERSONS_PER_ROOM} persons per room).`;
+                } else if (r > ROOM_LIMIT) {
+                    rooms.value = ROOM_LIMIT;
+                    if (roomError) roomError.textContent = `Cannot book more than ${ROOM_LIMIT} rooms.`;
+                    roomsVal = ROOM_LIMIT;
+                    message = `Guest count exceeds maximum (${ROOM_LIMIT} rooms, ${MAX_ADULTS_PER_ROOM} adults + ${MAX_CHILDREN_PER_ROOM} child per room). Reduce guests.`;
+                } else {
+                    if (roomsVal < minRooms) {
+                        roomsVal = minRooms;
+                        message = `Need at least ${minRooms} room${minRooms > 1 ? 's' : ''} for current guests.`;
+                    }
+                    if (roomsVal > ROOM_LIMIT) {
+                        roomsVal = ROOM_LIMIT;
+                        message = `Maximum ${ROOM_LIMIT} rooms per booking.`;
+                    }
+                }
+                rooms.value = roomsVal;
+                if (roomError) roomError.textContent = message;
+            };
+            const distributeFromGuests = (totalGuests) => {
+                const g = Math.max(1, totalGuests);
+                let a = readValue(adults, { allowEmpty: true });
+                let c = readValue(children, { allowEmpty: true });
+                if (a === null && c === null) {
+                    a = 0;
+                    c = 0;
+                } else {
+                    a = Math.max(0, Math.min(a ?? 0, g));
+                    c = Math.max(0, Math.min(c ?? 0, g - a));
+                }
+                if (a + c > g) {
+                    if (a > g) {
+                        a = g;
+                        c = 0;
+                    } else {
+                        c = g - a;
+                    }
+                }
+                adults.value = a;
+                children.value = c;
+                guests.value = g;
+                if (guestError) guestError.textContent = '';
+                validateRooms(a, c);
+            };
+            adults?.addEventListener('input', () => {
+                validateRooms(
+                    readValue(adults, { allowEmpty: true }) ?? 0,
+                    readValue(children, { allowEmpty: true }) ?? 0
+                );
+            });
+            adults?.addEventListener('blur', () => {
+                const g = readValue(guests, { allowEmpty: true });
+                let value = enforceBoundsOnBlur(adults, 0, g);
+                value = Math.max(0, Math.min(value, g));
+                adults.value = value;
+                children.value = Math.max(0, g - value);
+                validateRooms(value, g - value);
+            });
+            children?.addEventListener('input', () => {
+                const g = readValue(guests, { allowEmpty: true });
+                let value = readValue(children, { allowEmpty: true });
+                if (value === null) value = 0;
+                value = Math.max(0, Math.min(value, g - 1));
+                children.value = value;
+                adults.value = Math.max(1, g - value);
+                validateRooms(g - value, value);
+            });
+            children?.addEventListener('blur', () => {
+                const g = readValue(guests, { allowEmpty: true });
+                let value = enforceBoundsOnBlur(children, 0);
+                value = Math.max(0, Math.min(value, g - 1));
+                children.value = value;
+                adults.value = Math.max(1, g - value);
+                validateRooms(g - value, value);
+            });
+            rooms?.addEventListener('input', () => {
+                readValue(rooms, { allowEmpty: true, maxValue: ROOM_LIMIT });
+                if (roomError) roomError.textContent = '';
+            });
+            rooms?.addEventListener('blur', () => {
+                enforceBoundsOnBlur(rooms, 1, ROOM_LIMIT);
+                validateRooms();
+            });
+            const ensureGuestTotalsMatch = () => {
+                if (!guests || !adults || !children) return true;
+                const g = enforceBoundsOnBlur(guests, 1);
+                const a = enforceBoundsOnBlur(adults, 1);
+                const c = enforceBoundsOnBlur(children, 0);
+                if (g !== a + c) {
+                    if (guestError) guestError.textContent = 'Guests must equal Adults + Children.';
+                    guests.focus();
+                    return false;
+                }
+                if (guestError) guestError.textContent = '';
+                distributeFromGuests(g);
+                return true;
+            };
+            // --- Booking Summary Update ---
+            function formatDate(dateStr) {
+                if (!dateStr) return 'TBD';
+                const d = new Date(dateStr);
+                if (isNaN(d)) return 'TBD';
+                return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+            }
+            function calcNights() {
+                if (!checkIn.value || !checkOut.value) return 1;
+                const d1 = new Date(checkIn.value);
+                const d2 = new Date(checkOut.value);
+                const diff = Math.max(1, Math.round((d2-d1)/(1000*60*60*24)));
+                return diff;
+            }
+            function updateSummary() {
+                if (summaryCheckin) summaryCheckin.textContent = formatDate(checkIn.value);
+                if (summaryCheckout) summaryCheckout.textContent = formatDate(checkOut.value);
+                if (summaryNights) summaryNights.textContent = calcNights();
+                if (summaryRooms) summaryRooms.textContent = rooms.value;
+                if (summaryGuests) summaryGuests.innerHTML = `<i class='fas fa-users me-2'></i>${adults.value} Adults${children.value > 0 ? ` & ${children.value} Children` : ''}`;
+                // Booking calculation logic
+                const baseAmountElem = document.querySelector('.base-amount');
+                const taxElem = document.querySelector('.tax-amount');
+                const totalPriceElem = document.querySelector('.total-price .amount');
+                // Get price per night (from Django context or from base-amount attribute if available)
+                let pricePerNight = 0;
+                if (baseAmountElem && baseAmountElem.getAttribute('data-price-per-night')) {
+                    pricePerNight = parseFloat(baseAmountElem.getAttribute('data-price-per-night')) || 0;
+                } else if (baseAmountElem) {
+                    // fallback: try to extract from initial base price divided by rooms and nights
+                    const displayed = baseAmountElem.textContent.replace(/[^\d.]/g, '');
+                    pricePerNight = parseFloat(displayed) || 0;
+                }
+                const nights = calcNights();
+                const roomsCount = parseInt(rooms.value, 10) || 0;
+                const basePrice = pricePerNight * nights * roomsCount;
+                const tax = basePrice * 0.12; // 12% tax
+                const totalPrice = basePrice + tax;
+                if (baseAmountElem) baseAmountElem.textContent = `₹${basePrice.toFixed(0)}`;
+                if (taxElem) taxElem.textContent = `₹${tax.toFixed(0)}`;
+                if (totalPriceElem) totalPriceElem.textContent = `₹${totalPrice.toFixed(0)}`;
+            }
+            // Update summary on input
+            [checkIn, checkOut, adults, children, rooms].forEach((field) => {
+                field?.addEventListener('input', updateSummary);
+            });
+            // Validate form on submit
+            bookingForm.addEventListener('submit', function(event) {
+                if (!bookingForm.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                bookingForm.querySelectorAll('.form-control, .form-select').forEach(function(field) {
+                    field.classList.toggle('is-invalid', !field.checkValidity());
+                    field.classList.toggle('is-valid', field.checkValidity());
+                });
+            });
+            // Initialize defaults
+            distributeFromGuests(readValue(guests) || 1);
+        continueBtn?.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (checkIn.value === '' || checkOut.value === '' || parseInt(guests.value) < 1 || parseInt(adults.value) < 1 || parseInt(rooms.value) < 1) {
+                guestError.textContent = 'Please fill all booking details.';
+                return;
+            }
+            if (!ensureGuestTotalsMatch()) return;
+            guestError.textContent = '';
+            updateSummary();
+        });
+        // Initialize defaults
+        distributeFromGuests(readValue(guests) || 1);
+    });
+    </script>
+    </body>
+    </html>
