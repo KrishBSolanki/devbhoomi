@@ -9,6 +9,7 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     # Admin panel
     path('admin/', admin.site.urls),
@@ -26,6 +27,9 @@ urlpatterns = [
     
     # Users app - Login, Signup, Profile
     path('users/', include('users.urls')),
+    # Allauth social login URLs
+   path('accounts/', include('allauth.urls')),
+ 
 ]
 
 # Serve media files in development only

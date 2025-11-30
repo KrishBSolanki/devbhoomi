@@ -96,9 +96,8 @@
                 <button type="submit" class="btn-auth mb-3">Login Securely</button>
                 <p class="text-center text-muted">Or continue with</p>
                 <div class="social-login d-flex gap-3 justify-content-center">
-                    <button type="button" type="button"><i class="fab fa-google me-2"></i>Google</button>
-                    <button type="button"><i class="fab fa-facebook-f me-2"></i>Facebook</button>
-                </div>
+                    <a href="/accounts/google/login/" class="btn btn-outline-secondary rounded-pill px-4"><i class="fab fa-google me-2"></i>Google</a>
+                                    </div>
                 <p class="text-center mt-4 text-muted">Don't have an account? <a href="{% url 'users:signup' %}" class="link-muted fw-semibold">Sign Up</a></p>
             </form>
         </div>
