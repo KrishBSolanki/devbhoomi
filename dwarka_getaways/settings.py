@@ -70,7 +70,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+                 'debug': True,
         },
+   
     },
 ]
 
@@ -142,6 +144,7 @@ LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'core:index'
 LOGOUT_REDIRECT_URL = 'core:index'
 
+
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -151,4 +154,10 @@ SOCIALACCOUNT_PROVIDERS = {
       
     }
 }
+ACCOUNT_ALLOW_REGISTRATION = True # Allows signup to proceed
+SOCIALACCOUNT_NO_UNSOLICITED_SIGNUPS = True # Skips the standard allauth consent page
+SOCIALACCOUNT_AUTO_SIGNUP = True # Automatically attempts to sign up if registration is possible
 SITE_ID = 1
+
+# Skip Allauth intermediate confirmation page for Google login/signup
+SOCIALACCOUNT_LOGIN_ON_GET = True
