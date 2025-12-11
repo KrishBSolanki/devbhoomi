@@ -62,6 +62,12 @@
                 <span>Amenities</span>
             </a>
             {% endif %}
+            {% if perms.bookings.view_booking %}
+            <a href="{% url 'master:bookings' %}" class="sidebar-link {% if current == 'bookings' %}active{% endif %}">
+                <span class="bi bi-receipt"></span>
+                <span>Bookings</span>
+            </a>
+            {% endif %}
             <a href="#" class="sidebar-link disabled">
                 <span class="bi bi-gear"></span>
                 <span>Settings</span>

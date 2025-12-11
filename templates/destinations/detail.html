@@ -1,37 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
-
+{% block title %}{{ destination.name }} - Devbhoomi Group of Hotels{% endblock %}
 {% block content %}
-<!-- Navbar (same as homepage) -->
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'core:index' %}">
-            <i class="fas fa-om"></i>
-            <span class="brand-text">
-                <span class="brand-main">Devbhoomi</span>
-                <span class="brand-sub">Group of Hotels</span>
-            </span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item"><a class="nav-link" href="{% url 'core:index' %}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'core:about' %}">About Dwarka</a></li>
-                <li class="nav-item"><a class="nav-link" href="#popular-destinations">Destinations</a></li>
-                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-                {% if user.is_authenticated %}
-                    <li class="nav-item"><a class="nav-link" href="{% url 'users:dashboard' %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link btn-login" href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                {% else %}
-                    <li class="nav-item"><a class="nav-link btn-login" href="{% url 'users:login' %}">Login</a></li>
-                    <li class="nav-item"><a class="nav-link btn-signup" href="{% url 'users:signup' %}">Sign Up</a></li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
-</nav>
 
 <div class="container py-5">
     <div class="row mb-4">
@@ -48,7 +18,7 @@
                 <div class="card-body">
                     <h2 class="mb-3" style="font-size:2rem;font-weight:700;color:var(--peacock-green);">About {{ destination.name }}</h2>
                     <p class="lead" style="font-size:1.35rem;color:#444;font-weight:500;">{{ destination.description }}</p>
-                    {% if destination.slug == 'Dwarkadhish-Temple' %}
+                    {% if destination.slug == 'dwarkadhish-temple' %}
                     <a href="https://drive.google.com/file/d/1wcOsUqSGT-Ct8cnUnhB4LUpea3o5g9q1/view?usp=drive_link" target="_blank" class="btn btn-primary mt-3" style="font-weight:600;font-size:1.1rem;">View Aarti Timetable</a>
                     {% endif %}
                     {% if highlight_points %}

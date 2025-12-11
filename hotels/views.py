@@ -1,8 +1,10 @@
 """Hotels app views - Search, Details, Filters"""
 
 import re
+from urllib.parse import urlencode
 
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -19,12 +21,46 @@ LOCATION_LABEL_TO_ZONE = {
 
 def search_hotels(request):
     """Hotel search results with filters"""
-    
+
     # Get search parameters
     location = request.GET.get('location', 'Dwarka, Gujarat')
-    checkin = request.GET.get('checkin', '')
-    checkout = request.GET.get('checkout', '')
+    checkin = request.GET.get('checkin') or request.GET.get('checkIn') or ''
+    checkout = request.GET.get('checkout') or request.GET.get('checkOut') or ''
     guests = request.GET.get('guests', '2')
+    adults = request.GET.get('adults', '2')
+    children = request.GET.get('children', '0')
+    rooms = request.GET.get('rooms', '1')
+
+    def _parse_child_age(value):
+        try:
+            age = int(value)
+            return age if 0 <= age <= 17 else None
+        except (TypeError, ValueError):
+            return None
+
+    child_age_items = sorted(
+        [
+            (key, value)
+            for key, value in request.GET.items()
+            if key.startswith('child_age_') and value not in (None, '')
+        ],
+        key=lambda item: int(''.join(filter(str.isdigit, item[0])) or 0)
+    )
+    child_age_params = {key: value for key, value in child_age_items}
+    child_age_values = [
+        age for _, value in child_age_items
+        if (age := _parse_child_age(value)) is not None
+    ]
+
+    search_params = {
+        'location': location,
+        'checkin': checkin,
+        'checkout': checkout,
+        'guests': guests,
+        'adults': adults,
+        'children': children,
+        'rooms': rooms,
+    }
     
     # Get filter parameters
     min_price = request.GET.get('min_price', 500)
@@ -81,6 +117,10 @@ def search_hotels(request):
         hotels = hotels.order_by('-is_featured', '-rating')
     
     default_image = "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=300&h=250&fit=crop"
+    query_dict = {k: v for k, v in search_params.items() if v}
+    query_dict.update(child_age_params)
+    search_query = urlencode(query_dict)
+
     hotel_cards = []
     for idx, hotel in enumerate(hotels, start=1):
         distance_label = hotel.distance_from_temple or "Dwarka"
@@ -108,6 +148,15 @@ def search_hotels(request):
 
         discount_label = f"{hotel.discount_percentage}% OFF" if hotel.discount_percentage else ""
 
+        hotel_detail_link = reverse('hotels:details', args=[hotel.slug])
+        if search_query:
+            hotel_detail_link = f"{hotel_detail_link}?{search_query}"
+
+        try:
+            image_url = hotel.main_image.url
+        except (ValueError, AttributeError):
+            image_url = default_image
+
         hotel_cards.append({
             "id": hotel.slug,
             "name": hotel.name,
@@ -120,28 +169,46 @@ def search_hotels(request):
             "price": float(hotel.discounted_price or 0),
             "originalPrice": float(hotel.base_price or 0),
             "discountLabel": discount_label,
-            "img": hotel.main_image.url if getattr(hotel.main_image, 'url', None) else default_image,
-            "link": reverse('hotels:details', args=[hotel.slug]),
+            "img": image_url,
+            "link": hotel_detail_link,
             "propertyType": hotel.property_type,
             "amenities": amenities_list,
             "features": features,
             "order": idx,
         })
 
+    paginator = Paginator(hotel_cards, 1)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    page_hotels = page_obj.object_list
+
+    preserved_query_params = request.GET.copy()
+    preserved_query_params.pop('page', None)
+    pagination_querystring = preserved_query_params.urlencode()
+    page_base_url = f"?{pagination_querystring}&" if pagination_querystring else "?"
+
     # Get all amenities for filter display
     all_amenities = Amenity.objects.all()
     
+    recent_search = {
+        **search_params,
+        'child_ages': child_age_values,
+    }
+
+    # Persist recent search in session for later pages (hotel details / booking)
+    request.session['recent_search'] = recent_search
+
     context = {
         'hotels': hotels,
-        'hotels_count': hotels.count(),
+        'hotels_count': paginator.count,
         'all_amenities': all_amenities,
         'hotel_cards': hotel_cards,
-        'search_params': {
-            'location': location,
-            'checkin': checkin,
-            'checkout': checkout,
-            'guests': guests,
-        },
+        'page_obj': page_obj,
+        'page_hotels': page_hotels,
+        'page_base_url': page_base_url,
+        'search_params': search_params,
+        'child_ages': child_age_values,
+        'search_query': search_query,
         'filters': {
             'min_price': min_price,
             'max_price': max_price,
@@ -149,7 +216,8 @@ def search_hotels(request):
             'property_types': property_types,
             'amenities': amenities,
             'sort_by': sort_by,
-        }
+        },
+        'pagination_querystring': pagination_querystring,
     }
     
     return render(request, 'search/search.html', context)
@@ -158,6 +226,50 @@ def search_hotels(request):
 def hotel_details(request, slug):
     """Hotel details page"""
     hotel = get_object_or_404(Hotel, slug=slug, is_active=True)
+    recent_search = request.session.get('recent_search', {})
+
+    def _parse_child_age(value):
+        try:
+            age = int(value)
+            return age if 0 <= age <= 17 else None
+        except (TypeError, ValueError):
+            return None
+
+    child_age_items = sorted(
+        [
+            (key, value)
+            for key, value in request.GET.items()
+            if key.startswith('child_age_') and value not in (None, '')
+        ],
+        key=lambda item: int(''.join(filter(str.isdigit, item[0])) or 0)
+    )
+    child_age_params = {}
+    child_age_values = []
+    for key, value in child_age_items:
+        age = _parse_child_age(value)
+        if age is not None:
+            child_age_values.append(age)
+            child_age_params[key] = str(age)
+    if not child_age_params and recent_search.get('child_ages'):
+        for idx, age in enumerate(recent_search.get('child_ages'), start=1):
+            if isinstance(age, int) and 0 <= age <= 17:
+                child_age_values.append(age)
+                child_age_params[f'child_age_{idx}'] = str(age)
+
+    def _get_param(key, fallback=''):
+        return request.GET.get(key) or recent_search.get(key, fallback)
+
+    search_params = {
+        'location': request.GET.get('location') or recent_search.get('location') or hotel.name,
+        'checkin': request.GET.get('checkin') or request.GET.get('checkIn') or recent_search.get('checkin', ''),
+        'checkout': request.GET.get('checkout') or request.GET.get('checkOut') or recent_search.get('checkout', ''),
+        'guests': request.GET.get('guests') or recent_search.get('guests', ''),
+        'adults': request.GET.get('adults') or recent_search.get('adults', ''),
+        'children': request.GET.get('children') or recent_search.get('children', ''),
+        'rooms': request.GET.get('rooms') or recent_search.get('rooms', ''),
+    }
+    query_dict = {k: v for k, v in search_params.items() if v not in (None, '')}
+    query_dict.update(child_age_params)
 
     # Handle review submission
     if request.method == 'POST':
@@ -213,7 +325,8 @@ def hotel_details(request, slug):
     gallery_images = hotel.images.all()
     amenities = hotel.amenities.all()
     from django.urls import reverse
-    booking_url = reverse('bookings:booking_page', args=[hotel.slug])
+    booking_base = reverse('bookings:booking_page', args=[hotel.slug])
+    booking_url = f"{booking_base}?{urlencode(query_dict)}" if query_dict else booking_base
 
     # Calculate dynamic average rating and update hotel.rating
     if all_reviews.exists():
@@ -237,6 +350,8 @@ def hotel_details(request, slug):
         'gallery_images': gallery_images,
         'amenities': amenities,
         'booking_url': booking_url,
+        'search_params': search_params,
+        'child_ages': child_age_values,
         'dynamic_rating': dynamic_rating,
         'all_reviews': all_reviews,
     }

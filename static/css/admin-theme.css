@@ -78,13 +78,22 @@ body.admin-theme #user-tools a {
 
 body.admin-theme #content {
   background: var(--bg);
-  padding: clamp(1.5rem, 4vw, 3.5rem);
+  padding: clamp(1.5rem, 3vw, 2.75rem);
 }
 
 body.admin-theme #content-main,
 body.admin-theme #content-related {
   background: transparent;
   color: var(--text-primary);
+}
+
+body.admin-theme .app-dashboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+  max-width: 1200px;
+  margin-inline: auto;
 }
 
 body.admin-theme .dashboard-modules,
@@ -99,10 +108,20 @@ body.admin-theme .app-index .app {
   margin-bottom: 1.5rem;
 }
 
+body.admin-theme .change-form #content-main > .module,
+body.admin-theme .change-form #content-main form {
+  max-width: 960px;
+  margin-inline: auto;
+}
+
 body.admin-theme .app-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 2.5rem;
+  max-width: 1320px;
+  width: 100%;
+  margin-inline: auto;
+  align-items: stretch;
 }
 
 body.admin-theme .app-list .app h2,
@@ -116,6 +135,7 @@ body.admin-theme .app-list .app table {
   margin-top: 1rem;
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: auto;
 }
 
 body.admin-theme .app-list .app table th {
@@ -126,7 +146,14 @@ body.admin-theme .app-list .app table th {
 }
 
 body.admin-theme .app-list .app table td {
-  padding: 0.35rem 0;
+  padding: 0.5rem 0;
+  white-space: normal;
+  word-break: break-word;
+}
+
+body.admin-theme .app-list .app table td,
+body.admin-theme .app-list .app table th {
+  line-height: 1.4;
 }
 
 body.admin-theme .app-list .app table td a {
@@ -275,13 +302,41 @@ body.admin-theme #nav-sidebar .module caption {
 @media (min-width: 1200px) {
   body.admin-theme #content {
     display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 2rem;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 2.5rem;
   }
 
   body.admin-theme #content-related {
     position: sticky;
     top: 2rem;
     height: fit-content;
+  }
+
+  body.admin-theme.change-form #content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.admin-theme.change-form #nav-sidebar {
+    display: none;
+  }
+
+  body.admin-theme.change-form #content-main {
+    max-width: 960px;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  body.admin-theme.dashboard #content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.admin-theme.dashboard #content-related {
+    display: none;
+  }
+
+  body.admin-theme.dashboard #content-main {
+    max-width: 1320px;
+    width: 100%;
+    margin-inline: auto;
   }
 }

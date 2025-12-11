@@ -187,7 +187,7 @@
 
                     <!-- Hotel Cards -->
                     <div id="hotelCards" class="hotel-cards-list">
-                        {% for hotel in hotel_cards %}
+                        {% for hotel in page_hotels %}
                         <div class="hotel-card">
                             <div class="hotel-card-horizontal">
                                 <div class="hotel-image-container">
@@ -230,7 +230,7 @@
                                             </div>
                                             {% if hotel.discountLabel %}<div class="discount-label">{{ hotel.discountLabel }}</div>{% endif %}
                                         </div>
-                                        <a href="{% url 'hotels:details' hotel.id %}" class="btn-view-details">View Details</a>
+                                        <a href="{{ hotel.link }}" class="btn-view-details">View Details</a>
                                     </div>
                                 </div>
                             </div>
@@ -253,25 +253,23 @@
                     </div>
 
                     <!-- Pagination -->
+                    {% if page_obj.paginator.num_pages > 1 %}
                     <nav aria-label="Hotel results pagination" class="mt-5">
                         <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" style="color: var(--peacock-green); border-color: var(--peacock-green);">Previous</a>
+                            <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                                <a class="page-link" href="{% if page_obj.has_previous %}{{ page_base_url }}page={{ page_obj.previous_page_number }}{% else %}#{% endif %}" style="color: var(--peacock-green); border-color: var(--peacock-green);">Previous</a>
                             </li>
-                            <li class="page-item active">
-                                <a class="page-link" href="#" style="background-color: var(--peacock-green); border-color: var(--peacock-green);">1</a>
+                            {% for num in page_obj.paginator.page_range %}
+                            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                <a class="page-link" href="{{ page_base_url }}page={{ num }}" style="{% if page_obj.number == num %}background-color: var(--peacock-green); border-color: var(--peacock-green);{% else %}color: var(--peacock-green); border-color: var(--peacock-green);{% endif %}">{{ num }}</a>
                             </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#" style="color: var(--peacock-green); border-color: var(--peacock-green);">2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#" style="color: var(--peacock-green); border-color: var(--peacock-green);">3</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#" style="color: var(--peacock-green); border-color: var(--peacock-green);">Next</a>
+                            {% endfor %}
+                            <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                                <a class="page-link" href="{% if page_obj.has_next %}{{ page_base_url }}page={{ page_obj.next_page_number }}{% else %}#{% endif %}" style="color: var(--peacock-green); border-color: var(--peacock-green);">Next</a>
                             </li>
                         </ul>
                     </nav>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -323,7 +321,7 @@
         </div>
     </footer>
 
-    {{ hotel_cards|json_script:"hotel-data" }}
+    {{ page_hotels|json_script:"hotel-data" }}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -357,10 +355,7 @@
 
             const hotelDataElement = document.getElementById('hotel-data');
             const dynamicHotels = hotelDataElement ? JSON.parse(hotelDataElement.textContent) : [];
-            // No fallbackHotels array: all hotels are rendered from hotel_cards context.
-
-
-            const baseHotels = dynamicHotels.length ? dynamicHotels : fallbackHotels;
+            const baseHotels = [...dynamicHotels];
 
             const DEFAULT_PRICE_RANGE = { min: 500, max: 10000 };
             const priceMinInput = document.getElementById('priceMin');

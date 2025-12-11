@@ -37,6 +37,12 @@ def booking_page(request, hotel_slug, room_type_id=None):
     hotel = get_object_or_404(Hotel, slug=hotel_slug, is_active=True)
     razorpay_enabled = bool(settings.RAZORPAY_KEY_ID and settings.RAZORPAY_KEY_SECRET)
 
+    def _safe_int(value, default):
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
+
     # Determine selected room type
     room_queryset = hotel.room_types.filter(is_available=True)
     room_type = None
@@ -48,12 +54,41 @@ def booking_page(request, hotel_slug, room_type_id=None):
             room_type = room_queryset.filter(id=room_type_param).first()
     room_type = room_type or room_queryset.first()
 
-    # Get search parameters from session or query params
-    checkin = request.GET.get('checkin', '')
-    checkout = request.GET.get('checkout', '')
-    adults = int(request.GET.get('adults', 2))
-    children = int(request.GET.get('children', 0))
-    rooms = int(request.GET.get('rooms', 1))
+    recent_search = request.session.get('recent_search', {})
+
+    # Capture child age selections
+    child_age_items = sorted(
+        [
+            (key, value)
+            for key, value in request.GET.items()
+            if key.startswith('child_age_') and value not in (None, '')
+        ],
+        key=lambda item: int(''.join(filter(str.isdigit, item[0])) or 0)
+    )
+
+    def _safe_age(value):
+        try:
+            age = int(value)
+            return age if 0 <= age <= 17 else None
+        except (TypeError, ValueError):
+            return None
+
+    child_age_values = [age for _, value in child_age_items if (age := _safe_age(value)) is not None]
+    if not child_age_values:
+        recent_child_ages = recent_search.get('child_ages') or []
+        child_age_values = [
+            age for age in recent_child_ages
+            if isinstance(age, int) and 0 <= age <= 17
+        ]
+
+    # Get search parameters from query params or fallback to recent search/session
+    checkin = request.GET.get('checkin') or request.GET.get('checkIn') or recent_search.get('checkin', '')
+    checkout = request.GET.get('checkout') or request.GET.get('checkOut') or recent_search.get('checkout', '')
+    adults = _safe_int(request.GET.get('adults'), _safe_int(recent_search.get('adults'), 2))
+    children = _safe_int(request.GET.get('children'), _safe_int(recent_search.get('children'), 0))
+    rooms = _safe_int(request.GET.get('rooms'), _safe_int(recent_search.get('rooms'), 1))
+    total_guests = _safe_int(request.GET.get('guests'), _safe_int(recent_search.get('guests'), adults + children))
+    search_location = request.GET.get('location') or recent_search.get('location') or hotel.name
 
     # Calculate nights
     nights = 0
@@ -101,6 +136,9 @@ def booking_page(request, hotel_slug, room_type_id=None):
         'adults': adults,
         'children': children,
         'rooms': rooms,
+        'total_guests': total_guests,
+        'child_ages': child_age_values,
+        'search_location': search_location,
         'nights': stay_nights,
         'pricing': {
             'nightly_rate': nightly_rate,

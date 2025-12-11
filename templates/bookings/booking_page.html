@@ -232,47 +232,130 @@
                     {% endif %}
 
                     <!-- Booking Details Form -->
-                    <div class="booking-card mb-4" id="booking-details-form-card">
-                        <h2 class="section-title">
-                            <i class="fas fa-calendar-check"></i>
-                            Booking Details
-                        </h2>
+                    <div class="booking-card search-card search-card-modern booking-details-card mb-4" id="booking-details-form-card">
                         <form id="bookingDetailsForm" autocomplete="off">
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <label class="form-label">Check-in</label>
-                                    <input type="date" class="form-control" id="bookingCheckIn" name="checkin" required>
+                            <h2 class="search-title booking-search-title">
+                                <span class="booking-search-icon"><i class="fas fa-calendar-check"></i></span>
+                                Booking Details
+                            </h2>
+                            <div class="search-fields booking-search-fields">
+                                <div class="field-wrapper">
+                                    <label class="field-label">Where To</label>
+                                    <i class="fas fa-map-marker-alt input-icon"></i>
+                                    <input
+                                        type="text"
+                                        class="input-pill booking-location-pill"
+                                        id="bookingLocation"
+                                        name="location"
+                                        value="{{ search_location }}"
+                                        placeholder="Selected destination"
+                                        autocomplete="off"
+                                        readonly
+                                    >
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Check-out</label>
-                                    <input type="date" class="form-control" id="bookingCheckOut" name="checkout" required>
+                                <div class="field-wrapper">
+                                    <label class="field-label">Check-in</label>
+                                    <i class="far fa-calendar input-icon"></i>
+                                    <div class="date-picker-wrapper">
+                                        <div class="input-pill date-field" data-date-target="bookingCheckIn">
+                                            <div class="date-display" id="bookingCheckInDisplay">Select Date</div>
+                                            <div class="date-day" id="bookingCheckInDay">—</div>
+                                        </div>
+                                        <input type="date" id="bookingCheckIn" name="checkin" required class="date-input-overlay" value="{{ checkin }}">
+                                    </div>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Guests</label>
-                                    <input type="number" class="form-control" id="bookingGuests" name="guests" min="1" value="{{ adults|default:2|add:children|default:0 }}">
-                                    <div class="form-text text-danger" id="booking-guest-error"></div>
+                                <div class="field-wrapper">
+                                    <label class="field-label">Check-out</label>
+                                    <i class="far fa-calendar input-icon"></i>
+                                    <div class="date-picker-wrapper">
+                                        <div class="input-pill date-field" data-date-target="bookingCheckOut">
+                                            <div class="date-display" id="bookingCheckOutDisplay">Select Date</div>
+                                            <div class="date-day" id="bookingCheckOutDay">—</div>
+                                        </div>
+                                        <input type="date" id="bookingCheckOut" name="checkout" required class="date-input-overlay" value="{{ checkout }}">
+                                    </div>
+                                </div>
+                                <div class="field-wrapper guests-dropdown">
+                                    <label class="field-label">Guests & Rooms</label>
+                                    <i class="fas fa-user-friends input-icon"></i>
+                                    <div class="guests-display" id="bookingGuestsBtn">
+                                        <span id="bookingGuestsText">{{ adults|default:1 }} Adults{% if children %} | {{ children }} Children{% else %} | 0 Children{% endif %} | {{ rooms|default:1 }} Room{% if rooms|default:1|add:'-1' %}s{% endif %}</span>
+                                        <i class="fas fa-chevron-down dropdown-arrow"></i>
+                                    </div>
+                                    <div class="guests-panel" id="bookingGuestsPanel">
+                                        <div class="counter-row">
+                                            <div>
+                                                <div class="counter-label">Rooms</div>
+                                            </div>
+                                            <div class="counter-controls">
+                                                <button type="button" class="counter-btn" id="bookingRoomsMinus" data-counter="rooms" data-delta="-1">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <span class="counter-value" id="bookingRoomsCount">{{ rooms|default:1 }}</span>
+                                                <button type="button" class="counter-btn" id="bookingRoomsPlus" data-counter="rooms" data-delta="1">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="counter-row">
+                                            <div>
+                                                <div class="counter-label">Adults</div>
+                                                <div class="counter-sublabel">17+ yrs</div>
+                                            </div>
+                                            <div class="counter-controls">
+                                                <button type="button" class="counter-btn" id="bookingAdultsMinus" data-counter="adults" data-delta="-1">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <span class="counter-value" id="bookingAdultsCount">{{ adults|default:2 }}</span>
+                                                <button type="button" class="counter-btn" id="bookingAdultsPlus" data-counter="adults" data-delta="1">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="counter-row">
+                                            <div>
+                                                <div class="counter-label">Children</div>
+                                                <div class="counter-sublabel">0-17 yrs</div>
+                                            </div>
+                                            <div class="counter-controls">
+                                                <button type="button" class="counter-btn" id="bookingChildrenMinus" data-counter="children" data-delta="-1">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <span class="counter-value" id="bookingChildrenCount">{{ children|default:0 }}</span>
+                                                <button type="button" class="counter-btn" id="bookingChildrenPlus" data-counter="children" data-delta="1">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="child-ages" id="bookingChildAges">
+                                            <div class="child-age-header">
+                                                <span class="child-age-title">Select Age of Children</span>
+                                                <div class="select-dropdown">
+                                                    <button type="button" class="select-btn" id="bookingSelectAgeBtn">
+                                                        <span>Select</span>
+                                                        <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
+                                                    </button>
+                                                    <div class="select-options" id="bookingSelectAgeOptions"></div>
+                                                </div>
+                                            </div>
+                                            <div class="age-grid" id="bookingAgeGrid"></div>
+                                        </div>
+                                        <div class="counter-error" id="booking-guest-error" aria-live="polite"></div>
+                                        <div class="counter-error" id="booking-room-error" aria-live="polite"></div>
+                                        <button type="button" class="done-btn" id="bookingGuestsDoneBtn">Done</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="row g-3 mt-2">
-                                <div class="col-md-4">
-                                    <label class="form-label">Adults</label>
-                                    <input type="number" class="form-control" id="bookingAdults" name="adults" min="1" value="{{ adults|default:2 }}">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Children</label>
-                                    <input type="number" class="form-control" id="bookingChildren" name="children" min="0" value="{{ children|default:0 }}">
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Rooms</label>
-                                    <input type="number" class="form-control" id="bookingRooms" name="rooms" min="1" max="10" value="{{ rooms|default:1 }}">
-                                    <div class="form-text text-danger" id="booking-room-error"></div>
-                                </div>
-                            </div>
-                            <div class="sticky-footer mt-3">
-                                <button type="button" class="btn-continue w-100" id="bookingDetailsContinueBtn">
-                                    Continue
+                            <div class="search-button-wrapper booking-search-btn">
+                                <button type="button" class="search-button" id="bookingDetailsContinueBtn">
+                                    <span>Continue</span>
+                                    <i class="fas fa-arrow-right"></i>
                                 </button>
                             </div>
+                            <input type="hidden" id="bookingGuests" name="guests" value="{{ total_guests|default:adults|default:2|add:children|default:0 }}">
+                            <input type="hidden" id="bookingAdults" name="adults" value="{{ adults|default:2 }}">
+                            <input type="hidden" id="bookingChildren" name="children" value="{{ children|default:0 }}">
+                            <input type="hidden" id="bookingRooms" name="rooms" value="{{ rooms|default:1 }}">
                         </form>
                     </div>
 
@@ -464,17 +547,17 @@
                         <div class="d-flex justify-content-between mb-2">
                             <div>
                                 <p class="text-muted small mb-1">Check-in</p>
-                                <p class="fw-semibold">{{ checkin_date|date:'d M Y'|default:'TBD' }}</p>
+                                <p class="fw-semibold" id="summaryCheckin">{{ checkin_date|date:'d M Y'|default:'TBD' }}</p>
                             </div>
                             <div class="text-end">
                                 <p class="text-muted small mb-1">Check-out</p>
-                                <p class="fw-semibold">{{ checkout_date|date:'d M Y'|default:'TBD' }}</p>
+                                <p class="fw-semibold" id="summaryCheckout">{{ checkout_date|date:'d M Y'|default:'TBD' }}</p>
                             </div>
                         </div>
                         <div class="summary-pill mb-3">
-                            <div><i class="fas fa-moon me-2"></i>Nights <strong>{{ booking_summary.nights }}</strong></div>
-                            <div><i class="fas fa-door-open me-2"></i>Rooms <strong>{{ booking_summary.rooms }}</strong></div>
-                            <div><i class="fas fa-users me-2"></i>{{ booking_summary.guests_label }}</div>
+                            <div><i class="fas fa-moon me-2"></i>Nights <strong id="summaryNights">{{ booking_summary.nights }}</strong></div>
+                            <div><i class="fas fa-door-open me-2"></i>Rooms <strong id="summaryRooms">{{ booking_summary.rooms }}</strong></div>
+                            <div id="summaryGuests"><i class="fas fa-users me-2"></i>{{ booking_summary.guests_label }}</div>
                         </div>
 
                         <h5 class="fw-bold mb-3">Price Details</h5>
@@ -523,6 +606,7 @@
 
     {% include 'site_footer.html' %}
 
+    {{ child_ages|json_script:"bookingChildAgesJSON" }}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -564,6 +648,9 @@
             const roomError = bookingForm.querySelector('#booking-room-error');
             const continueBtn = bookingForm.querySelector('#bookingDetailsContinueBtn');
             const guestFormEl = document.getElementById('guestDetailsForm');
+            const guestFormCard = document.getElementById('content-step2');
+            const bookingLocationInput = document.getElementById('bookingLocation');
+            const bookingAutocomplete = document.getElementById('bookingAutocomplete');
 
             // Hidden fields inside guest form that must stay in sync
             const hiddenCheckin = document.getElementById('guestCheckin');
@@ -580,221 +667,471 @@
                 if (hiddenRooms) hiddenRooms.value = rooms?.value || '1';
             };
 
+            const childAgesDataEl = document.getElementById('bookingChildAgesJSON');
+            let childAgeSelections = [];
+            if (childAgesDataEl) {
+                try {
+                    const parsed = JSON.parse(childAgesDataEl.textContent);
+                    if (Array.isArray(parsed)) {
+                        childAgeSelections = parsed
+                            .map((age) => parseInt(age, 10))
+                            .filter((age) => Number.isInteger(age) && age >= 0 && age <= 17);
+                    }
+                } catch (error) {
+                    console.warn('Failed to parse initial child ages', error);
+                }
+            }
+
             // Sidebar summary fields
-            const summaryCheckin = document.querySelector('.d-flex .fw-semibold');
-            const summaryCheckout = document.querySelector('.d-flex .text-end .fw-semibold');
-            const summaryNights = document.querySelector('.summary-pill div:nth-child(1) strong');
-            const summaryRooms = document.querySelector('.summary-pill div:nth-child(2) strong');
-            const summaryGuests = document.querySelector('.summary-pill div:nth-child(3)');
+            const summaryCheckin = document.getElementById('summaryCheckin');
+            const summaryCheckout = document.getElementById('summaryCheckout');
+            const summaryNights = document.getElementById('summaryNights');
+            const summaryRooms = document.getElementById('summaryRooms');
+            const summaryGuests = document.getElementById('summaryGuests');
+
+            // Date display nodes
+            const checkInDisplay = document.getElementById('bookingCheckInDisplay');
+            const checkOutDisplay = document.getElementById('bookingCheckOutDisplay');
+            const checkInDay = document.getElementById('bookingCheckInDay');
+            const checkOutDay = document.getElementById('bookingCheckOutDay');
 
             // Date logic
+            const toIsoDate = (date) => date.toISOString().split('T')[0];
+            const getNextDay = (dateString) => {
+                const date = dateString ? new Date(dateString) : new Date();
+                date.setDate(date.getDate() + 1);
+                return toIsoDate(date);
+            };
+            const formatDisplayDate = (value) => {
+                if (!value) return { date: 'Select Date', day: '—' };
+                const dateObj = new Date(value);
+                if (Number.isNaN(dateObj.getTime())) return { date: 'Select Date', day: '—' };
+                return {
+                    date: dateObj.toLocaleDateString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: '2-digit'
+                    }),
+                    day: dateObj.toLocaleDateString('en-IN', { weekday: 'long' })
+                };
+            };
+            const updateDateDisplays = () => {
+                if (checkInDisplay && checkInDay) {
+                    const { date, day } = formatDisplayDate(checkIn?.value);
+                    checkInDisplay.textContent = date;
+                    checkInDay.textContent = day;
+                }
+                if (checkOutDisplay && checkOutDay) {
+                    const { date, day } = formatDisplayDate(checkOut?.value);
+                    checkOutDisplay.textContent = date;
+                    checkOutDay.textContent = day;
+                }
+            };
             const setInitialDateLimits = () => {
-                const today = new Date().toISOString().split('T')[0];
+                const today = toIsoDate(new Date());
                 if (checkIn) {
                     checkIn.min = today;
                     if (!checkIn.value) checkIn.value = today;
                 }
-                if (checkOut) {
-                    checkOut.min = checkIn?.value || today;
+                if (checkOut && checkIn) {
+                    const nextDay = getNextDay(checkIn.value || today);
+                    checkOut.min = nextDay;
+                    if (!checkOut.value || checkOut.value <= checkIn.value) {
+                        checkOut.value = nextDay;
+                    }
                 }
+                updateDateDisplays();
             };
             const enforceCheckoutAfterCheckin = () => {
                 if (!checkIn || !checkOut) return;
-                checkOut.min = checkIn.value;
-                if (checkOut.value && checkOut.value < checkIn.value) {
-                    checkOut.value = checkIn.value;
+                const checkInDate = checkIn.value || toIsoDate(new Date());
+                const nextDay = getNextDay(checkInDate);
+                checkOut.min = nextDay;
+                if (!checkOut.value || checkOut.value <= checkInDate) {
+                    checkOut.value = nextDay;
                 }
+                updateDateDisplays();
             };
             setInitialDateLimits();
-            checkIn?.addEventListener('change', enforceCheckoutAfterCheckin);
+            checkIn?.addEventListener('change', () => {
+                enforceCheckoutAfterCheckin();
+                updateSummary();
+            });
+            checkOut?.addEventListener('change', () => {
+                updateDateDisplays();
+                updateSummary();
+            });
 
-            // Validation and sync logic
+            // Guests & rooms dropdown logic
+            const bookingGuestsBtn = document.getElementById('bookingGuestsBtn');
+            const bookingGuestsPanel = document.getElementById('bookingGuestsPanel');
+            const bookingGuestsText = document.getElementById('bookingGuestsText');
+            const bookingGuestsDoneBtn = document.getElementById('bookingGuestsDoneBtn');
+            const bookingChildAges = document.getElementById('bookingChildAges');
+            const bookingAgeGrid = document.getElementById('bookingAgeGrid');
+            const bookingSelectAgeBtn = document.getElementById('bookingSelectAgeBtn');
+            const bookingSelectAgeOptions = document.getElementById('bookingSelectAgeOptions');
+
             const ROOM_LIMIT = 10;
-            const MAX_ADULTS_PER_ROOM = 3;
-            const MAX_CHILDREN_PER_ROOM = 1;
-            const MAX_GUESTS_PER_ROOM = MAX_ADULTS_PER_ROOM + MAX_CHILDREN_PER_ROOM;
+            const MAX_GUESTS_PER_ROOM = 5;
+            const BOOKING_LIMITS = {
+                rooms: { min: 1, max: ROOM_LIMIT },
+                adults: { min: 1, max: 30 },
+                children: { min: 0, max: 10 }
+            };
+            const bookingCounts = {
+                rooms: parseInt(rooms?.value, 10) || 1,
+                adults: Math.max(1, parseInt(adults?.value, 10) || 2),
+                children: Math.max(0, parseInt(children?.value, 10) || 0)
+            };
+            if (childAgeSelections.length > bookingCounts.children) {
+                bookingCounts.children = childAgeSelections.length;
+                if (children) children.value = bookingCounts.children;
+            }
+            if (guests) {
+                guests.value = bookingCounts.adults + bookingCounts.children;
+            }
+            const bookingCounterValues = {
+                rooms: document.getElementById('bookingRoomsCount'),
+                adults: document.getElementById('bookingAdultsCount'),
+                children: document.getElementById('bookingChildrenCount'),
+            };
+            const bookingCounterButtons = {
+                rooms: {
+                    minus: document.getElementById('bookingRoomsMinus'),
+                    plus: document.getElementById('bookingRoomsPlus'),
+                },
+                adults: {
+                    minus: document.getElementById('bookingAdultsMinus'),
+                    plus: document.getElementById('bookingAdultsPlus'),
+                },
+                children: {
+                    minus: document.getElementById('bookingChildrenMinus'),
+                    plus: document.getElementById('bookingChildrenPlus'),
+                },
+            };
+            const AGE_OPTIONS = Array.from({ length: 18 }, (_, age) => age);
 
-            const sanitizeDigits = (input, maxValue = null) => {
-                if (!input) return '';
-                let digits = input.value.replace(/[^0-9]/g, '');
-                if (maxValue !== null && digits !== '') {
-                    const parsed = parseInt(digits, 10);
-                    if (!isNaN(parsed) && parsed > maxValue) {
-                        digits = maxValue.toString();
+            const updateGuestsText = () => {
+                if (!bookingGuestsText) return;
+                const adultLabel = `${bookingCounts.adults} Adult${bookingCounts.adults > 1 ? 's' : ''}`;
+                const childrenLabel = `${bookingCounts.children} Child${bookingCounts.children === 1 ? '' : 'ren'}`;
+                const roomLabel = `${bookingCounts.rooms} Room${bookingCounts.rooms > 1 ? 's' : ''}`;
+                bookingGuestsText.textContent = `${adultLabel} | ${childrenLabel} | ${roomLabel}`;
+            };
+            const renderBookingCounters = () => {
+                Object.keys(bookingCounterValues).forEach((type) => {
+                    const display = bookingCounterValues[type];
+                    if (display) display.textContent = bookingCounts[type];
+                    const buttons = bookingCounterButtons[type];
+                    if (buttons?.minus) {
+                        buttons.minus.disabled = bookingCounts[type] <= BOOKING_LIMITS[type].min;
+                    }
+                    if (buttons?.plus) {
+                        buttons.plus.disabled = bookingCounts[type] >= BOOKING_LIMITS[type].max;
+                    }
+                });
+            };
+            const syncHiddenBookingInputs = () => {
+                if (rooms) rooms.value = bookingCounts.rooms;
+                if (adults) adults.value = bookingCounts.adults;
+                if (children) children.value = bookingCounts.children;
+                if (guests) guests.value = bookingCounts.adults + bookingCounts.children;
+                syncGuestHiddenFields();
+            };
+            const renderSelectOptions = () => {
+                if (!bookingSelectAgeOptions) return;
+                bookingSelectAgeOptions.innerHTML = AGE_OPTIONS.map(age => `
+                    <div class="select-option" data-age="${age}">${age}</div>
+                `).join('');
+            };
+            const attachAgeSelectListeners = () => {
+                if (!bookingAgeGrid) return;
+                const selects = bookingAgeGrid.querySelectorAll('.age-select');
+                selects.forEach((select, index) => {
+                    select.addEventListener('change', () => {
+                        if (select.value) {
+                            select.classList.remove('error');
+                            if (guestError && !bookingAgeGrid.querySelector('.age-select.error')) {
+                                guestError.textContent = '';
+                            }
+                            childAgeSelections[index] = parseInt(select.value, 10);
+                        } else {
+                            childAgeSelections[index] = undefined;
+                        }
+                    });
+                });
+            };
+            const prefillChildAges = () => {
+                if (!bookingAgeGrid) return;
+                bookingAgeGrid.querySelectorAll('.age-select').forEach((select, index) => {
+                    const preset = childAgeSelections[index];
+                    if (preset !== undefined && preset !== null && preset !== '') {
+                        select.value = preset;
+                    }
+                });
+            };
+            const renderAgeSelects = (count) => {
+                if (!bookingChildAges || !bookingAgeGrid) return;
+                bookingAgeGrid.innerHTML = '';
+                if (count <= 0) {
+                    bookingChildAges.classList.remove('active');
+                    return;
+                }
+                bookingChildAges.classList.add('active');
+                childAgeSelections = childAgeSelections.slice(0, count);
+                for (let i = 1; i <= Math.min(count, BOOKING_LIMITS.children.max); i += 1) {
+                    bookingAgeGrid.insertAdjacentHTML('beforeend', `
+                        <div class="age-box">
+                            <div class="age-box-label">Child ${i}</div>
+                            <select class="age-select" name="child_age_${i}">
+                                <option value="">Age</option>
+                                ${AGE_OPTIONS.map(age => `<option value="${age}">${age}</option>`).join('')}
+                            </select>
+                        </div>
+                    `);
+                    if (typeof childAgeSelections[i - 1] === 'undefined') {
+                        childAgeSelections[i - 1] = null;
                     }
                 }
-                if (input.value !== digits) input.value = digits;
-                return digits;
+                attachAgeSelectListeners();
+                prefillChildAges();
             };
-            const readValue = (input, { allowEmpty = false, maxValue = null } = {}) => {
-                const digits = sanitizeDigits(input, maxValue);
-                if (digits === '') return allowEmpty ? null : 0;
-                return parseInt(digits, 10);
-            };
-            const enforceBoundsOnBlur = (input, min, max = null) => {
-                if (!input) return min;
-                let value = readValue(input, { allowEmpty: true, maxValue: max });
-                if (value === null || isNaN(value)) value = min;
-                if (value < min) value = min;
-                if (max !== null && value > max) value = max;
-                input.value = value;
-                return value;
-            };
-            const suggestRooms = () => {
-                let a = parseInt(adults.value) || 0;
-                let c = parseInt(children.value) || 0;
-                let g = a + c;
-                let minRoomsByCapacity = Math.ceil(g / MAX_PERSONS_PER_ROOM); 
-                let r = parseInt(rooms.value) || 1;
-                if (r < minRoomsByCapacity) {
-                    rooms.value = minRoomsByCapacity;
-                    if (roomError) roomError.textContent = `Suggested: ${minRoomsByCapacity} room${minRoomsByCapacity > 1 ? 's' : ''} (max ${MAX_PERSONS_PER_ROOM} persons per room).`;
-                } else if (r > ROOM_LIMIT) {
-                    rooms.value = ROOM_LIMIT;
-                    if (roomError) roomError.textContent = `Cannot book more than ${ROOM_LIMIT} rooms.`;
-                    roomsVal = ROOM_LIMIT;
-                    message = `Guest count exceeds maximum (${ROOM_LIMIT} rooms, ${MAX_ADULTS_PER_ROOM} adults + ${MAX_CHILDREN_PER_ROOM} child per room). Reduce guests.`;
-                } else {
-                    if (roomsVal < minRooms) {
-                        roomsVal = minRooms;
-                        message = `Need at least ${minRooms} room${minRooms > 1 ? 's' : ''} for current guests.`;
-                    }
-                    if (roomsVal > ROOM_LIMIT) {
-                        roomsVal = ROOM_LIMIT;
-                        message = `Maximum ${ROOM_LIMIT} rooms per booking.`;
-                    }
-                }
-                rooms.value = roomsVal;
-                if (roomError) roomError.textContent = message;
-            };
-            const distributeFromGuests = (totalGuests) => {
-                const g = Math.max(1, totalGuests);
-                let a = readValue(adults, { allowEmpty: true });
-                let c = readValue(children, { allowEmpty: true });
-                if (a === null && c === null) {
-                    a = 0;
-                    c = 0;
-                } else {
-                    a = Math.max(0, Math.min(a ?? 0, g));
-                    c = Math.max(0, Math.min(c ?? 0, g - a));
-                }
-                if (a + c > g) {
-                    if (a > g) {
-                        a = g;
-                        c = 0;
-                    } else {
-                        c = g - a;
-                    }
-                }
-                adults.value = a;
-                children.value = c;
-                guests.value = g;
+            const selectAllAges = (age) => {
+                if (!bookingAgeGrid) return;
+                bookingAgeGrid.querySelectorAll('.age-select').forEach(select => {
+                    select.value = age;
+                    select.classList.remove('error');
+                });
                 if (guestError) guestError.textContent = '';
-                validateRooms(a, c);
             };
-            adults?.addEventListener('input', () => {
-                validateRooms(
-                    readValue(adults, { allowEmpty: true }) ?? 0,
-                    readValue(children, { allowEmpty: true }) ?? 0
-                );
-            });
-            adults?.addEventListener('blur', () => {
-                const g = readValue(guests, { allowEmpty: true });
-                let value = enforceBoundsOnBlur(adults, 0, g);
-                value = Math.max(0, Math.min(value, g));
-                adults.value = value;
-                children.value = Math.max(0, g - value);
-                validateRooms(value, g - value);
-            });
-            children?.addEventListener('input', () => {
-                const g = readValue(guests, { allowEmpty: true });
-                let value = readValue(children, { allowEmpty: true });
-                if (value === null) value = 0;
-                value = Math.max(0, Math.min(value, g - 1));
-                children.value = value;
-                adults.value = Math.max(1, g - value);
-                validateRooms(g - value, value);
-            });
-            children?.addEventListener('blur', () => {
-                const g = readValue(guests, { allowEmpty: true });
-                let value = enforceBoundsOnBlur(children, 0);
-                value = Math.max(0, Math.min(value, g - 1));
-                children.value = value;
-                adults.value = Math.max(1, g - value);
-                validateRooms(g - value, value);
-            });
-            rooms?.addEventListener('input', () => {
-                readValue(rooms, { allowEmpty: true, maxValue: ROOM_LIMIT });
-                if (roomError) roomError.textContent = '';
-            });
-            rooms?.addEventListener('blur', () => {
-                enforceBoundsOnBlur(rooms, 1, ROOM_LIMIT);
-                validateRooms();
-            });
-            const ensureGuestTotalsMatch = () => {
-                if (!guests || !adults || !children) return true;
-                const g = enforceBoundsOnBlur(guests, 1);
-                const a = enforceBoundsOnBlur(adults, 1);
-                const c = enforceBoundsOnBlur(children, 0);
-                if (g !== a + c) {
-                    if (guestError) guestError.textContent = 'Guests must equal Adults + Children.';
-                    guests.focus();
+            const calculateMinRooms = () => {
+                const totalGuests = Math.max(1, bookingCounts.adults + bookingCounts.children);
+                return Math.max(1, Math.ceil(totalGuests / MAX_GUESTS_PER_ROOM));
+            };
+            const validateRooms = () => {
+                if (!roomError) return true;
+                const minRooms = calculateMinRooms();
+                let message = '';
+                if (bookingCounts.rooms < minRooms) {
+                    bookingCounts.rooms = Math.min(minRooms, ROOM_LIMIT);
+                    message = `Need at least ${bookingCounts.rooms} room${bookingCounts.rooms > 1 ? 's' : ''} for current guests.`;
+                } else if (bookingCounts.rooms > ROOM_LIMIT) {
+                    bookingCounts.rooms = ROOM_LIMIT;
+                    message = `Maximum ${ROOM_LIMIT} rooms per booking.`;
+                }
+                roomError.textContent = message;
+                renderBookingCounters();
+                syncHiddenBookingInputs();
+                return message === '';
+            };
+            const validateChildAges = () => {
+                if (!bookingAgeGrid || bookingCounts.children <= 0) {
+                    if (guestError) guestError.textContent = '';
+                    return true;
+                }
+                let valid = true;
+                bookingAgeGrid.querySelectorAll('.age-select').forEach(select => {
+                    if (!select.value) {
+                        select.classList.add('error');
+                        valid = false;
+                    } else {
+                        select.classList.remove('error');
+                    }
+                });
+                if (!valid && guestError) {
+                    guestError.textContent = 'Please select age for all children.';
+                }
+                if (valid && guestError) guestError.textContent = '';
+                return valid;
+            };
+            const updateGuestsState = () => {
+                renderBookingCounters();
+                updateGuestsText();
+                syncHiddenBookingInputs();
+                updateSummary();
+            };
+            const ensureRoomCapacity = () => {
+                const totalGuests = bookingCounts.adults + bookingCounts.children;
+                const requiredRooms = Math.max(1, Math.ceil(totalGuests / MAX_GUESTS_PER_ROOM));
+                if (requiredRooms > ROOM_LIMIT) {
+                    guestError.textContent = `Maximum capacity reached: ${ROOM_LIMIT * MAX_GUESTS_PER_ROOM} guests across ${ROOM_LIMIT} rooms.`;
                     return false;
                 }
-                if (guestError) guestError.textContent = '';
-                distributeFromGuests(g);
+                if (bookingCounts.rooms < requiredRooms) {
+                    bookingCounts.rooms = requiredRooms;
+                }
+                guestError.textContent = '';
                 return true;
             };
+
+            const changeBookingCount = (type, delta) => {
+                const limit = BOOKING_LIMITS[type];
+                if (!limit) return;
+                const next = Math.min(limit.max, Math.max(limit.min, bookingCounts[type] + delta));
+                if (bookingCounts[type] === next) return;
+
+                const previousValue = bookingCounts[type];
+
+                bookingCounts[type] = next;
+                if (!ensureRoomCapacity()) {
+                    bookingCounts[type] = previousValue;
+                    return;
+                }
+
+                updateGuestsState();
+                if (type === 'children') {
+                    renderAgeSelects(next);
+                }
+                updateSummary();
+            };
+            const toggleGuestsPanel = (forceOpen = null) => {
+                if (!bookingGuestsPanel || !bookingGuestsBtn) return;
+                let shouldOpen = forceOpen;
+                if (shouldOpen === null) {
+                    shouldOpen = !bookingGuestsPanel.classList.contains('active');
+                }
+                if (shouldOpen) {
+                    bookingGuestsPanel.classList.add('active');
+                    bookingGuestsBtn.classList.add('active');
+                } else {
+                    bookingGuestsPanel.classList.remove('active');
+                    bookingGuestsBtn.classList.remove('active');
+                }
+            };
+            const ensureGuestTotalsMatch = () => {
+                const agesValid = validateChildAges();
+                const roomsValid = validateRooms();
+                if (bookingCounts.adults < 1 && guestError) {
+                    guestError.textContent = 'At least 1 adult is required.';
+                }
+                const adultsValid = bookingCounts.adults >= 1;
+                if (!(agesValid && roomsValid && adultsValid)) {
+                    toggleGuestsPanel(true);
+                    return false;
+                }
+                if (guestError && guestError.textContent === 'At least 1 adult is required.') {
+                    guestError.textContent = '';
+                }
+                return true;
+            };
+            bookingForm.querySelectorAll('[data-counter][data-delta]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const type = button.dataset.counter;
+                    const delta = parseInt(button.dataset.delta, 10) || 0;
+                    changeBookingCount(type, delta);
+                });
+            });
+            bookingGuestsBtn?.addEventListener('click', (event) => {
+                event.stopPropagation();
+                toggleGuestsPanel();
+            });
+            bookingGuestsDoneBtn?.addEventListener('click', () => {
+                if (ensureGuestTotalsMatch()) {
+                    toggleGuestsPanel(false);
+                }
+            });
+            bookingSelectAgeBtn?.addEventListener('click', (event) => {
+                event.stopPropagation();
+                bookingSelectAgeBtn.classList.toggle('active');
+                bookingSelectAgeOptions?.classList.toggle('active');
+            });
+            bookingSelectAgeOptions?.addEventListener('click', (event) => {
+                const option = event.target.closest('.select-option');
+                if (!option) return;
+                selectAllAges(option.dataset.age);
+                bookingSelectAgeBtn?.classList.remove('active');
+                bookingSelectAgeOptions.classList.remove('active');
+            });
+            document.addEventListener('click', (event) => {
+                if (bookingGuestsPanel && !bookingGuestsPanel.contains(event.target) && !bookingGuestsBtn?.contains(event.target)) {
+                    toggleGuestsPanel(false);
+                }
+                if (bookingSelectAgeOptions && !bookingSelectAgeOptions.contains(event.target) && !bookingSelectAgeBtn?.contains(event.target)) {
+                    bookingSelectAgeBtn?.classList.remove('active');
+                    bookingSelectAgeOptions.classList.remove('active');
+                }
+            });
+            const initBookingLocationAutocomplete = () => {
+                if (!bookingLocationInput || !bookingAutocomplete) return;
+                const items = Array.from(bookingAutocomplete.querySelectorAll('.autocomplete-item'));
+
+                const filterItems = (query) => {
+                    const normalized = (query || '').trim().toLowerCase();
+                    let visible = 0;
+                    items.forEach((item) => {
+                        const value = (item.dataset.value || item.textContent || '').toLowerCase();
+                        const isMatch = !normalized || value.includes(normalized);
+                        item.style.display = isMatch ? 'flex' : 'none';
+                        if (isMatch) visible += 1;
+                    });
+                    bookingAutocomplete.classList.toggle('active', visible > 0);
+                };
+
+                bookingLocationInput.addEventListener('focus', () => filterItems(bookingLocationInput.value));
+                bookingLocationInput.addEventListener('input', () => filterItems(bookingLocationInput.value));
+                bookingLocationInput.addEventListener('blur', () => {
+                    setTimeout(() => bookingAutocomplete.classList.remove('active'), 120);
+                });
+                bookingAutocomplete.addEventListener('mousedown', (event) => {
+                    const item = event.target.closest('.autocomplete-item');
+                    if (!item) return;
+                    event.preventDefault();
+                    bookingLocationInput.value = item.dataset.value || item.textContent.trim();
+                    bookingAutocomplete.classList.remove('active');
+                });
+            };
+
+            renderSelectOptions();
+            renderAgeSelects(bookingCounts.children);
+            updateGuestsState();
+            initBookingLocationAutocomplete();
+            ensureRoomCapacity();
+
             // --- Booking Summary Update ---
-            function formatDate(dateStr) {
+            function formatSummaryDate(dateStr) {
                 if (!dateStr) return 'TBD';
                 const d = new Date(dateStr);
-                if (isNaN(d)) return 'TBD';
-                return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+                if (Number.isNaN(d.getTime())) return 'TBD';
+                return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
             }
             function calcNights() {
-                if (!checkIn.value || !checkOut.value) return 1;
+                if (!checkIn?.value || !checkOut?.value) return 1;
                 const d1 = new Date(checkIn.value);
                 const d2 = new Date(checkOut.value);
-                const diff = Math.max(1, Math.round((d2-d1)/(1000*60*60*24)));
+                const diff = Math.max(1, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)));
                 return diff;
             }
             function updateSummary() {
-                if (summaryCheckin) summaryCheckin.textContent = formatDate(checkIn.value);
-                if (summaryCheckout) summaryCheckout.textContent = formatDate(checkOut.value);
-                if (summaryNights) summaryNights.textContent = calcNights();
-                if (summaryRooms) summaryRooms.textContent = rooms.value;
-                if (summaryGuests) summaryGuests.innerHTML = `<i class='fas fa-users me-2'></i>${adults.value} Adults${children.value > 0 ? ` & ${children.value} Children` : ''}`;
-                syncGuestHiddenFields();
-                // Booking calculation logic
+                if (summaryCheckin) summaryCheckin.textContent = formatSummaryDate(checkIn?.value);
+                if (summaryCheckout) summaryCheckout.textContent = formatSummaryDate(checkOut?.value);
+                const nights = calcNights();
+                if (summaryNights) summaryNights.textContent = nights;
+                if (summaryRooms) summaryRooms.textContent = bookingCounts.rooms;
+                if (summaryGuests) {
+                    const guestLabel = `${bookingCounts.adults} Adults${bookingCounts.children > 0 ? ` & ${bookingCounts.children} Children` : ''}`;
+                    summaryGuests.innerHTML = `<i class='fas fa-users me-2'></i>${guestLabel}`;
+                }
                 const baseAmountElem = document.querySelector('.base-amount');
                 const taxElem = document.querySelector('.tax-amount');
                 const totalPriceElem = document.querySelector('.total-price .amount');
-                // Get price per night (from Django context or from base-amount attribute if available)
                 let pricePerNight = 0;
                 if (baseAmountElem && baseAmountElem.getAttribute('data-price-per-night')) {
                     pricePerNight = parseFloat(baseAmountElem.getAttribute('data-price-per-night')) || 0;
                 } else if (baseAmountElem) {
-                    // fallback: try to extract from initial base price divided by rooms and nights
                     const displayed = baseAmountElem.textContent.replace(/[^\d.]/g, '');
                     pricePerNight = parseFloat(displayed) || 0;
                 }
-                const nights = calcNights();
-                const roomsCount = parseInt(rooms.value, 10) || 0;
+                const roomsCount = bookingCounts.rooms;
                 const basePrice = pricePerNight * nights * roomsCount;
-                const tax = basePrice * 0.12; // 12% tax
+                const tax = basePrice * 0.12;
                 const totalPrice = basePrice + tax;
                 if (baseAmountElem) baseAmountElem.textContent = `₹${basePrice.toFixed(0)}`;
                 if (taxElem) taxElem.textContent = `₹${tax.toFixed(0)}`;
                 if (totalPriceElem) totalPriceElem.textContent = `₹${totalPrice.toFixed(0)}`;
+                syncHiddenBookingInputs();
             }
-            // Update summary on input
-            [checkIn, checkOut, adults, children, rooms].forEach((field) => {
-                field?.addEventListener('input', () => {
-                    updateSummary();
-                });
-                field?.addEventListener('change', syncGuestHiddenFields);
-            });
+
             // Validate form on submit
             bookingForm.addEventListener('submit', function(event) {
                 if (!bookingForm.checkValidity()) {
@@ -806,62 +1143,26 @@
                     field.classList.toggle('is-valid', field.checkValidity());
                 });
             });
-            // Initialize defaults
-            distributeFromGuests(readValue(guests) || 1);
             continueBtn?.addEventListener('click', function(e) {
                 e.preventDefault();
-                if (checkIn.value === '' || checkOut.value === '' || parseInt(guests.value) < 1 || parseInt(adults.value) < 1 || parseInt(rooms.value) < 1) {
-                    guestError.textContent = 'Please fill all booking details.';
+                if (!checkIn?.value || !checkOut?.value) {
+                    guestError.textContent = 'Please select valid check-in and check-out dates.';
                     return;
                 }
                 if (!ensureGuestTotalsMatch()) return;
-                guestError.textContent = '';
-                syncGuestHiddenFields();
+                if (guestError) guestError.textContent = '';
                 updateSummary();
-            });
-            // Initialize defaults once more after attaching listeners
-            distributeFromGuests(readValue(guests) || 1);
-            syncGuestHiddenFields();
-            guestFormEl?.addEventListener('submit', syncGuestHiddenFields);
-        });
-    </script>
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const continueBtn = document.getElementById('bookingDetailsContinueBtn');
-    const bookingForm = document.getElementById('bookingDetailsForm');
-    const guestFormCard = document.getElementById('content-step2');
-    if (continueBtn && bookingForm && guestFormCard) {
-        continueBtn.addEventListener('click', function() {
-            let valid = true;
-            bookingForm.querySelectorAll('input[required], input[type="number"]').forEach(function(input) {
-                if (!input.value || (input.type === 'number' && parseInt(input.value) < parseInt(input.min || '0'))) {
-                    input.classList.add('is-invalid');
-                    // Show inline error message
-                    const errorDiv = input.parentElement.querySelector('.form-text.text-danger, .invalid-feedback');
-                    if (errorDiv) {
-                        if (input.name === 'checkin' || input.name === 'checkout') {
-                            errorDiv.textContent = 'Please select a valid date.';
-                        } else if (input.name === 'guests' || input.name === 'adults' || input.name === 'rooms') {
-                            errorDiv.textContent = 'Please fill this field with a valid value.';
-                        } else {
-                            errorDiv.textContent = 'This field is required.';
-                        }
-                        errorDiv.style.display = 'block';
-                    }
-                    valid = false;
-                } else {
-                    input.classList.remove('is-invalid');
+                if (guestFormCard) {
+                    guestFormCard.style.display = 'block';
+                    guestFormCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }
             });
-            if (valid) {
-                guestFormCard.style.display = 'block';
-                guestFormCard.scrollIntoView({behavior: 'smooth'});
-            } else {
-                bookingForm.classList.add('was-validated');
-            }
+            updateSummary();
+            validateRooms();
+            guestFormEl?.addEventListener('submit', syncGuestHiddenFields);
+            // Add this line
+            console.log('Booking form submitted');
         });
-    }
-});
-</script>
+    </script>
 </body>
-    </html>
+</html>

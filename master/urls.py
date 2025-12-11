@@ -27,4 +27,5 @@ urlpatterns = [
     path("amenities/create/", views.AmenityCreateView.as_view(), name="amenity-create"),
     path("amenities/<int:pk>/edit/", views.AmenityUpdateView.as_view(), name="amenity-edit"),
     path("amenities/<int:pk>/delete/", views.AmenityDeleteView.as_view(), name="amenity-delete"),
+    path("bookings/", views.BookingListView.as_view(), name="bookings"),
 ]

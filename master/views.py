@@ -2,7 +2,8 @@ from datetime import timedelta
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.db.models import Q
+from django.db.models import Count, Q, DateField
+from django.db.models.functions import TruncWeek
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -43,6 +44,7 @@ class StaffPermissionRequiredMixin(LoginRequiredMixin, PermissionRequiredMixin):
 @staff_required
 def dashboard(request):
     now = timezone.now()
+    today = timezone.localdate()
     week_ago = now - timedelta(days=7)
     stats = {
         "hotels": Hotel.objects.count(),
@@ -54,11 +56,50 @@ def dashboard(request):
         Booking.objects.select_related("hotel", "room_type")
         .order_by("-created_at")[:5]
     )
-    chart_data = [12, 18, 9, 20, 25, 22, 28]
+    weeks_back = 12
+    current_week_start = today - timedelta(days=today.weekday())
+    start_week = current_week_start - timedelta(weeks=weeks_back - 1)
+    weekly_counts = (
+        Booking.objects.filter(created_at__date__gte=start_week)
+        .annotate(week_start=TruncWeek("created_at", output_field=DateField()))
+        .values("week_start")
+        .order_by("week_start")
+        .annotate(total=Count("id"))
+    )
+    weekly_map = {entry["week_start"]: entry["total"] for entry in weekly_counts}
+    chart_points = []
+    for i in range(weeks_back):
+        week_start = start_week + timedelta(weeks=i)
+        value = weekly_map.get(week_start, 0)
+        chart_points.append(
+            {
+                "label": week_start.strftime("%b %d"),
+                "value": value,
+            }
+        )
+    peak_value = max([point["value"] for point in chart_points] or [0])
+    scale = (150 / peak_value) if peak_value else 0
+    for point in chart_points:
+        raw_height = point["value"] * scale if scale else 0
+        if point["value"] > 0:
+            point["height_px"] = max(4, int(raw_height))
+        else:
+            point["height_px"] = 0
+    chart_data = {
+        "points": chart_points,
+        "range_label": "Last 12 weeks",
+        "total": sum(point["value"] for point in chart_points),
+        "labels": [point["label"] for point in chart_points],
+        "values": [point["value"] for point in chart_points],
+    }
     return render(
         request,
         "master/dashboard.html",
-        {"stats": stats, "chart_data": chart_data, "latest_bookings": latest_bookings},
+        {
+            "stats": stats,
+            "chart_data": chart_data,
+            "latest_bookings": latest_bookings,
+        },
     )
 
 
@@ -264,8 +305,34 @@ class AmenityDeleteView(StaffPermissionRequiredMixin, DeleteView):
     permission_required = "hotels.delete_amenity"
     success_url = reverse_lazy("master:amenities")
 
+
+@method_decorator(staff_required, name="dispatch")
+class BookingListView(StaffPermissionRequiredMixin, ListView):
+    model = Booking
+    template_name = "master/bookings/list.html"
+    context_object_name = "bookings"
+    permission_required = "bookings.view_booking"
+    paginate_by = 25
+
+    def get_queryset(self):
+        queryset = (
+            Booking.objects.select_related("hotel", "room_type", "user")
+            .order_by("-created_at")
+        )
+        status = self.request.GET.get("status")
+        search = self.request.GET.get("q")
+        if status:
+            queryset = queryset.filter(status=status)
+        if search:
+            queryset = queryset.filter(
+                Q(booking_id__icontains=search)
+                | Q(hotel__name__icontains=search)
+                | Q(user__username__icontains=search)
+                | Q(user__email__icontains=search)
+            )
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["entity_label"] = f"amenity '{self.object.name}'"
-        context["back_url"] = reverse_lazy("master:amenities")
+        context["status_choices"] = Booking.STATUS_CHOICES
         return context

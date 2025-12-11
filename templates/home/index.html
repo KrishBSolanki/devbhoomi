@@ -1,72 +1,7 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devbhoomi Group of Hotels - Find Your Perfect Stay in Dwarka</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <link rel="stylesheet" href="{% static 'css/global.css' %}">
-
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'core:index' %}">
-                <i class="fas fa-om"></i>
-                 <!-- <img src="logo_main.png" alt=""> -->
-                <span class="brand-text">
-                    <span class="brand-main">Devbhoomi</span>
-                    <span class="brand-sub">Group of Hotels</span>
-                </span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#home">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#about-dwarka">About Dwarka</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#top-rated-hotels">Top Rated</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#popular-destinations">Destinations</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#contact">Contact</a>
-                    </li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'users:dashboard' %}">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn-login" href="{% url 'users:logout' %}">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link btn-login" href="{% url 'users:login' %}">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn-signup" href="{% url 'users:signup' %}">Sign Up</a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+{% block title %}Devbhoomi Group of Hotels - Find Your Perfect Stay in Dwarka{% endblock %}
+{% block content %}
     <!-- Hero Section with Search -->
     <section class="hero-section" id="home">
         <div class="container">
@@ -75,50 +10,195 @@
                 <p>Hotels near Dwarkadhish Temple, Gomti Ghat, and sacred landmarks</p>
             </div>
             
-            <div class="search-card">
+            <div class="search-card search-card-modern">
                 <form id="searchForm" action="{% url 'hotels:search' %}" method="get">
-                    <div class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label">Location</label>
-                            <select class="form-select" id="location" name="location">
-                                <option value="Dwarkadhish Temple, Dwarka, Gujarat">Dwarkadhish Temple, Dwarka, Gujarat</option>
-                                <option value="Gomti Ghat, Dwarka, Gujarat">Gomti Ghat, Dwarka, Gujarat</option>
-                                <option value="Dwarka Beach, Dwarka, Gujarat">Dwarka Beach, Dwarka, Gujarat</option>
-                                <option value="Bet Dwarka, Dwarka, Gujarat">Bet Dwarka, Dwarka, Gujarat</option>
-                            </select>
+                    <h2 class="search-title">Plan Your Devbhoomi Getaway</h2>
+
+                    <div class="search-fields">
+                        <div class="field-wrapper">
+                            <label class="field-label">Where To</label>
+                            <i class="fas fa-map-marker-alt input-icon"></i>
+                            <input
+                                type="text"
+                                class="input-pill"
+                                placeholder="e.g. – Area, Landmark or Property Name"
+                                id="location"
+                                name="location"
+                                autocomplete="off"
+                            >
+                            <div class="autocomplete-dropdown" id="autocomplete">
+                                <div class="autocomplete-item" data-value="Dwarkadhish Temple, Dwarka, Gujarat">
+                                    <i class="fas fa-landmark"></i>
+                                    <div class="autocomplete-text">
+                                        <div class="autocomplete-title">Dwarkadhish Temple</div>
+                                        <div class="autocomplete-subtitle">Main temple complex</div>
+                                    </div>
+                                </div>
+                                <div class="autocomplete-item" data-value="Gomti Ghat, Dwarka, Gujarat">
+                                    <i class="fas fa-water"></i>
+                                    <div class="autocomplete-text">
+                                        <div class="autocomplete-title">Gomti Ghat</div>
+                                        <div class="autocomplete-subtitle">Sacred riverfront</div>
+                                    </div>
+                                </div>
+                                <div class="autocomplete-item" data-value="Dwarka Beach, Dwarka, Gujarat">
+                                    <i class="fas fa-umbrella-beach"></i>
+                                    <div class="autocomplete-text">
+                                        <div class="autocomplete-title">Dwarka Beach</div>
+                                        <div class="autocomplete-subtitle">Coastal stays</div>
+                                    </div>
+                                </div>
+                                <div class="autocomplete-item" data-value="Bet Dwarka, Dwarka, Gujarat">
+                                    <i class="fas fa-ship"></i>
+                                    <div class="autocomplete-text">
+                                        <div class="autocomplete-title">Bet Dwarka</div>
+                                        <div class="autocomplete-subtitle">Island pilgrimage</div>
+                                    </div>
+                                </div>
+                                <div class="autocomplete-item" data-value="Rukmini Devi Temple, Dwarka, Gujarat">
+                                    <i class="fas fa-om"></i>
+                                    <div class="autocomplete-text">
+                                        <div class="autocomplete-title">Rukmini Devi Temple</div>
+                                        <div class="autocomplete-subtitle">Historic shrine</div>
+                                    </div>
+                                </div>
+                                <div class="autocomplete-item" data-value="Sudama Setu, Dwarka, Gujarat">
+                                    <i class="fas fa-bridge-water"></i>
+                                    <div class="autocomplete-text">
+                                        <div class="autocomplete-title">Sudama Setu</div>
+                                        <div class="autocomplete-subtitle">Bridge over Gomti</div>
+                                    </div>
+                                </div>
+                                <div class="autocomplete-item" data-value="Nageshwar Jyotirlinga, Dwarka, Gujarat">
+                                    <i class="fas fa-praying-hands"></i>
+                                    <div class="autocomplete-text">
+                                        <div class="autocomplete-title">Nageshwar Jyotirlinga</div>
+                                        <div class="autocomplete-subtitle">Shiv temple near Dwarka</div>
+                                    </div>
+                                </div>
+                                <div class="autocomplete-item" data-value="Okha Port, Devbhoomi Dwarka">
+                                    <i class="fas fa-anchor"></i>
+                                    <div class="autocomplete-text">
+                                        <div class="autocomplete-title">Okha Port</div>
+                                        <div class="autocomplete-subtitle">Gateway to island ferries</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Check-in</label>
-                            <input type="date" class="form-control" id="checkIn" name="checkIn" required>
+
+                        <div class="field-wrapper">
+                            <label class="field-label">Check-in</label>
+                            <i class="far fa-calendar input-icon"></i>
+                            <div class="date-picker-wrapper">
+                                <div class="input-pill date-field" data-date-target="checkIn">
+                                    <div class="date-display" id="checkInDisplay">Select Date</div>
+                                    <div class="date-day" id="checkInDay">—</div>
+                                </div>
+                                <input type="date" id="checkIn" name="checkIn" required class="date-input-overlay">
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Check-out</label>
-                            <input type="date" class="form-control" id="checkOut" name="checkOut" required>
+
+                        <div class="field-wrapper">
+                            <label class="field-label">Check-out</label>
+                            <i class="far fa-calendar input-icon"></i>
+                            <div class="date-picker-wrapper">
+                                <div class="input-pill date-field" data-date-target="checkOut">
+                                    <div class="date-display" id="checkOutDisplay">Select Date</div>
+                                    <div class="date-day" id="checkOutDay">—</div>
+                                </div>
+                                <input type="date" id="checkOut" name="checkOut" required class="date-input-overlay">
+                            </div>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Guests</label>
-                            <input type="number" class="form-control" id="guests" name="guests" min="1" value="1">
-                            <div class="form-text text-danger" id="guest-error"></div>
+
+                        <div class="field-wrapper guests-dropdown">
+                            <label class="field-label">Guests & Rooms</label>
+                            <i class="fas fa-user-friends input-icon"></i>
+                            <div class="guests-display" id="guestsBtn">
+                                <span id="guestsText">2 Adults | 0 Children | 1 Room</span>
+                                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                            </div>
+
+                            <div class="guests-panel" id="guestsPanel">
+                                <div class="counter-row">
+                                    <div>
+                                        <div class="counter-label">Rooms</div>
+                                    </div>
+                                    <div class="counter-controls">
+                                        <button type="button" class="counter-btn" id="roomsMinus" onclick="changeCount('rooms', -1)">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <span class="counter-value" id="roomsCount">1</span>
+                                        <button type="button" class="counter-btn" id="roomsPlus" onclick="changeCount('rooms', 1)">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="counter-row">
+                                    <div>
+                                        <div class="counter-label">Adults</div>
+                                        <div class="counter-sublabel">17+ yrs</div>
+                                    </div>
+                                    <div class="counter-controls">
+                                        <button type="button" class="counter-btn" id="adultsMinus" onclick="changeCount('adults', -1)">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <span class="counter-value" id="adultsCount">2</span>
+                                        <button type="button" class="counter-btn" id="adultsPlus" onclick="changeCount('adults', 1)">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="counter-row">
+                                    <div>
+                                        <div class="counter-label">Children</div>
+                                        <div class="counter-sublabel">0-17 yrs</div>
+                                    </div>
+                                    <div class="counter-controls">
+                                        <button type="button" class="counter-btn" id="childrenMinus" onclick="changeCount('children', -1)">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <span class="counter-value" id="childrenCount">0</span>
+                                        <button type="button" class="counter-btn" id="childrenPlus" onclick="changeCount('children', 1)">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="child-ages" id="childAges">
+                                    <div class="child-age-header">
+                                        <span class="child-age-title">Select Age of Children</span>
+                                        <div class="select-dropdown">
+                                            <button type="button" class="select-btn" id="selectAgeBtn">
+                                                <span>Select</span>
+                                                <i class="fas fa-chevron-down" style="font-size: 12px;"></i>
+                                            </button>
+                                            <div class="select-options" id="selectAgeOptions"></div>
+                                        </div>
+                                    </div>
+                                    <div class="age-grid" id="ageGrid"></div>
+                                </div>
+
+                                <div class="counter-error" id="guest-error" aria-live="polite"></div>
+                                <div class="counter-error" id="room-error" aria-live="polite"></div>
+
+                                <button type="button" class="done-btn" onclick="handleGuestsDone()">Done</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="row g-3 mt-2">
-                        <div class="col-md-4">
-                            <label class="form-label">Adults</label>
-                            <input type="number" class="form-control" id="adults" name="adults" min="0" value="1">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Children</label>
-                            <input type="number" class="form-control" id="children" name="children" min="0" value="0">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Rooms</label>
-                            <input type="number" class="form-control" id="rooms" name="rooms" min="1" max="10" value="1">
-                            <div class="form-text text-danger" id="room-error"></div>
-                        </div>
+
+                    <div class="search-button-wrapper">
+                        <button type="submit" class="search-button">
+                            <i class="fas fa-search"></i>
+                            <span>Search Hotels</span>
+                        </button>
                     </div>
-                    <button type="submit" class="btn-search">
-                        <i class="fas fa-search me-2"></i>Search Hotels
-                    </button>
+
+                    <input type="hidden" id="guests" name="guests" value="2">
+                    <input type="hidden" id="adults" name="adults" value="2">
+                    <input type="hidden" id="children" name="children" value="0">
+                    <input type="hidden" id="rooms" name="rooms" value="1">
                 </form>
             </div>
         </div>
@@ -418,7 +498,19 @@
                                     <p style="color: #666; margin: 0;">+91 1800 123 4567<br>+91 98765 43210</p>
                                 </div>
                             </div>
-                            
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
+                                <div style="width: 50px; height: 50px; background: var(--palm-cream); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                                    <i class="fab fa-whatsapp" style="color: var(--peacock-green); font-size: 1.3rem;"></i>
+                                </div>
+                                <div>
+                                    <h6 style="color: var(--peacock-green); font-weight: 600; margin-bottom: 5px;">WhatsApp</h6>
+                                    <p style="margin: 0;">
+                                        <a href="https://wa.me/09428283364" target="_blank" rel="noopener" style="color: #666; text-decoration: underline;">
+                                            +91 94282 83364
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
                             <div style="display: flex; align-items: flex-start; margin-bottom: 20px;">
                                 <div style="width: 50px; height: 50px; background: var(--palm-cream); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
                                     <i class="fas fa-envelope" style="color: var(--peacock-green); font-size: 1.3rem;"></i>
@@ -444,59 +536,6 @@
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <h5><i class="fas fa-om me-2"></i>Devbhoomi Group of Hotels</h5>
-                    <p>Your trusted partner for spiritual journeys and comfortable stays in the holy city of Dwarka.</p>
-                    <div class="social-icons mt-3">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h5>Quick Links</h5>
-                    <ul>
-                        <li><a href="{% url 'core:index' %}">Home</a></li>
-                        <li><a href="{% url 'core:about' %}">About Dwarka</a></li>
-                        <li><a href="{% url 'hotels:search' %}">Hotels</a></li>
-                        <li><a href="{% url 'core:contact' %}">Contact Us</a></li>
-                    </ul>
-                </div>
-                
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5>Popular Hotels</h5>
-                    <ul>
-                        {% for hotel in top_rated_hotels|slice:':3' %}
-                        <li><a href="{% url 'hotels:details' hotel.slug %}">{{ hotel.name }}</a></li>
-                        {% endfor %}
-                        <li><a href="{% url 'hotels:search' %}">View All Hotels</a></li>
-                    </ul>
-                </div>
-                
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5>Legal</h5>
-                    <ul>
-                        <li><a href="privacy.html">Privacy Policy</a></li>
-                        <li><a href="terms.html">Terms of Use</a></li>
-                        <li><a href="refund.html">Refund Policy</a></li>
-                        <li><a href="faq.html">FAQ</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="copyright">
-                <p>© 2025 Devbhoomi Group of Hotels. All rights reserved. | Designed with <i class="fas fa-heart" style="color: var(--gold);"></i> for Pilgrims</p>
-            </div>
-        </div>
-    </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Navbar scroll effect
@@ -506,9 +545,10 @@
                 navbar.classList.add('scrolled');
             } else {
                 navbar.classList.remove('scrolled');
+
             }
         });
-        
+
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -521,10 +561,9 @@
                         top: targetPosition,
                         behavior: 'smooth'
                     });
-                    
-                    // Close mobile navbar if open
+
                     const navbarCollapse = document.querySelector('.navbar-collapse');
-                    if (navbarCollapse.classList.contains('show')) {
+                    if (navbarCollapse?.classList.contains('show')) {
                         const bsCollapse = new bootstrap.Collapse(navbarCollapse);
                         bsCollapse.hide();
                     }
@@ -532,10 +571,46 @@
             });
         });
 
-        // Redirect for 'Search Hotels' button in the search form
         const searchForm = document.getElementById('searchForm');
         const checkInInput = document.getElementById('checkIn');
         const checkOutInput = document.getElementById('checkOut');
+        const checkInDisplay = document.getElementById('checkInDisplay');
+        const checkOutDisplay = document.getElementById('checkOutDisplay');
+        const checkInDay = document.getElementById('checkInDay');
+        const checkOutDay = document.getElementById('checkOutDay');
+
+        const formatDate = (dateObj) => dateObj.toISOString().split('T')[0];
+        const addDays = (dateStr, days) => {
+            const date = new Date(dateStr);
+            date.setDate(date.getDate() + days);
+            return formatDate(date);
+        };
+
+        const formatDisplayDate = (value) => {
+            if (!value) return { date: 'Select Date', day: '—' };
+            const dateObj = new Date(value);
+            return {
+                date: dateObj.toLocaleDateString('en-IN', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: '2-digit'
+                }),
+                day: dateObj.toLocaleDateString('en-IN', { weekday: 'long' })
+            };
+        };
+
+        const updateDateDisplays = () => {
+            if (checkInDisplay) {
+                const { date, day } = formatDisplayDate(checkInInput?.value);
+                checkInDisplay.textContent = date;
+                checkInDay.textContent = day;
+            }
+            if (checkOutDisplay) {
+                const { date, day } = formatDisplayDate(checkOutInput?.value);
+                checkOutDisplay.textContent = date;
+                checkOutDay.textContent = day;
+            }
+        };
 
         const setInitialDateLimits = () => {
             const today = new Date().toISOString().split('T')[0];
@@ -544,20 +619,375 @@
                 if (!checkInInput.value) checkInInput.value = today;
             }
             if (checkOutInput) {
-                checkOutInput.min = checkInInput?.value || today;
+                const baseDate = checkInInput?.value || today;
+                checkOutInput.min = baseDate;
+                const defaultCheckout = addDays(baseDate, 1);
+                if (!checkOutInput.value || checkOutInput.value <= baseDate) {
+                    checkOutInput.value = defaultCheckout;
+                }
             }
+            updateDateDisplays();
         };
 
         const enforceCheckoutAfterCheckin = () => {
             if (!checkInInput || !checkOutInput) return;
-            checkOutInput.min = checkInInput.value;
-            if (checkOutInput.value && checkOutInput.value < checkInInput.value) {
-                checkOutInput.value = checkInInput.value;
+            const checkInVal = checkInInput.value;
+            checkOutInput.min = checkInVal;
+            const desiredCheckout = addDays(checkInVal, 1);
+            if (!checkOutInput.value || checkOutInput.value <= checkInVal) {
+                checkOutInput.value = desiredCheckout;
             }
+            updateDateDisplays();
         };
 
         setInitialDateLimits();
         checkInInput?.addEventListener('change', enforceCheckoutAfterCheckin);
+        checkOutInput?.addEventListener('change', updateDateDisplays);
+
+        const guestsBtn = document.getElementById('guestsBtn');
+        const guestsPanel = document.getElementById('guestsPanel');
+        const guestsText = document.getElementById('guestsText');
+        const childAgesContainer = document.getElementById('childAges');
+        const ageGrid = document.getElementById('ageGrid');
+        const selectAgeBtn = document.getElementById('selectAgeBtn');
+        const selectAgeOptions = document.getElementById('selectAgeOptions');
+        const guestError = document.getElementById('guest-error');
+        const roomError = document.getElementById('room-error');
+        const hiddenGuestsInput = document.getElementById('guests');
+        const hiddenAdultsInput = document.getElementById('adults');
+        const hiddenChildrenInput = document.getElementById('children');
+        const hiddenRoomsInput = document.getElementById('rooms');
+        const toggleSwitch = document.getElementById('toggleSwitch');
+        const checkbox = document.getElementById('checkbox');
+
+        const LIMITS = {
+            rooms: { min: 1, max: 10 },
+            adults: { min: 1, max: 30 },
+            children: { min: 0, max: 10 }
+        };
+        const MAX_GUESTS_PER_ROOM = 5;
+
+        const counts = {
+            rooms: parseInt(hiddenRoomsInput?.value, 10) || 1,
+            adults: parseInt(hiddenAdultsInput?.value, 10) || 2,
+            children: parseInt(hiddenChildrenInput?.value, 10) || 0
+        };
+
+        const counterNodes = {
+            rooms: {
+                value: document.getElementById('roomsCount'),
+                minus: document.getElementById('roomsMinus'),
+                plus: document.getElementById('roomsPlus')
+            },
+            adults: {
+                value: document.getElementById('adultsCount'),
+                minus: document.getElementById('adultsMinus'),
+                plus: document.getElementById('adultsPlus')
+            },
+            children: {
+                value: document.getElementById('childrenCount'),
+                minus: document.getElementById('childrenMinus'),
+                plus: document.getElementById('childrenPlus')
+            }
+        };
+
+        const updateHiddenGuestInputs = () => {
+            const totalGuests = counts.adults + counts.children;
+            if (hiddenGuestsInput) hiddenGuestsInput.value = totalGuests;
+            if (hiddenAdultsInput) hiddenAdultsInput.value = counts.adults;
+            if (hiddenChildrenInput) hiddenChildrenInput.value = counts.children;
+            if (hiddenRoomsInput) hiddenRoomsInput.value = counts.rooms;
+        };
+
+        const updateGuestsText = () => {
+            if (!guestsText) return;
+            const adultLabel = `${counts.adults} Adult${counts.adults > 1 ? 's' : ''}`;
+            const childrenLabel = counts.children > 0 ? ` | ${counts.children} Child${counts.children > 1 ? 'ren' : ''}` : '';
+            const roomLabel = ` | ${counts.rooms} Room${counts.rooms > 1 ? 's' : ''}`;
+            guestsText.textContent = `${adultLabel}${childrenLabel}${roomLabel}`;
+        };
+
+        const renderCounters = () => {
+            Object.entries(counterNodes).forEach(([key, nodes]) => {
+                if (!nodes.value) return;
+                nodes.value.textContent = counts[key];
+                nodes.minus && (nodes.minus.disabled = counts[key] <= LIMITS[key].min);
+                nodes.plus && (nodes.plus.disabled = counts[key] >= LIMITS[key].max);
+            });
+        };
+
+        const AGE_DROPDOWN_VALUES = Array.from({ length: 18 }, (_, age) => age);
+
+        const renderAgeCard = (index) => `
+            <div class="age-box">
+                <div class="age-box-label">Child ${index}</div>
+                <select class="age-select" name="child_age_${index}">
+                    <option value="">Age</option>
+                    ${AGE_DROPDOWN_VALUES.map(age => `<option value="${age}">${age}</option>`).join('')}
+                </select>
+            </div>
+        `;
+
+        const clearChildAgeErrors = () => {
+            if (guestError) guestError.textContent = '';
+            if (!ageGrid) return;
+            const selects = ageGrid.querySelectorAll('.age-select');
+            selects.forEach(select => select.classList.remove('error'));
+        };
+
+        const attachAgeSelectListeners = () => {
+            if (!ageGrid) return;
+            const selects = ageGrid.querySelectorAll('.age-select');
+            selects.forEach(select => {
+                select.addEventListener('change', () => {
+                    if (select.value) {
+                        select.classList.remove('error');
+                        const remainingInvalid = Array.from(selects).some(sel => !sel.value);
+                        if (!remainingInvalid && guestError) {
+                            guestError.textContent = '';
+                        }
+                    } else {
+                        select.classList.add('error');
+                    }
+                });
+            });
+        };
+
+        const updateChildAges = (count) => {
+            if (!childAgesContainer || !ageGrid) return;
+            ageGrid.innerHTML = '';
+            clearChildAgeErrors();
+            if (count <= 0) {
+                childAgesContainer.classList.remove('active');
+                return;
+            }
+            childAgesContainer.classList.add('active');
+            for (let i = 1; i <= Math.min(count, LIMITS.children.max); i++) {
+                ageGrid.insertAdjacentHTML('beforeend', renderAgeCard(i));
+            }
+            attachAgeSelectListeners();
+        };
+
+        const selectAllAges = (age) => {
+            if (!ageGrid) return;
+            const selects = ageGrid.querySelectorAll('.age-select');
+            selects.forEach(select => {
+                select.value = age;
+            });
+            clearChildAgeErrors();
+        };
+
+        const validateChildAges = () => {
+            if (counts.children <= 0) {
+                clearChildAgeErrors();
+                return true;
+            }
+            if (!ageGrid) return true;
+            const selects = ageGrid.querySelectorAll('.age-select');
+            let isValid = true;
+            selects.forEach(select => {
+                if (!select.value) {
+                    select.classList.add('error');
+                    isValid = false;
+                } else {
+                    select.classList.remove('error');
+                }
+            });
+            if (!isValid && guestError) {
+                guestError.textContent = 'Please select age for all children.';
+            }
+            if (isValid && guestError) {
+                guestError.textContent = '';
+            }
+            return isValid;
+        };
+
+        const renderSelectOptions = () => {
+            if (!selectAgeOptions) return;
+            selectAgeOptions.innerHTML = AGE_DROPDOWN_VALUES.map(age => `
+                <div class="select-option" data-age="${age}">${age}</div>
+            `).join('');
+        };
+
+        const calculateMinRooms = () => {
+            const totalGuests = Math.max(1, counts.adults + counts.children);
+            return Math.max(1, Math.ceil(totalGuests / MAX_GUESTS_PER_ROOM));
+        };
+
+        const validateRooms = () => {
+            if (!roomError) return true;
+            let message = '';
+            const minRooms = calculateMinRooms();
+            if (counts.rooms < minRooms) {
+                counts.rooms = Math.min(minRooms, LIMITS.rooms.max);
+                message = `Need at least ${counts.rooms} room${counts.rooms > 1 ? 's' : ''} for current guests.`;
+            } else if (counts.rooms > LIMITS.rooms.max) {
+                counts.rooms = LIMITS.rooms.max;
+                message = `Maximum ${LIMITS.rooms.max} rooms per booking.`;
+            }
+            roomError.textContent = message;
+            renderCounters();
+            updateHiddenGuestInputs();
+            updateGuestsText();
+            return message === '';
+        };
+
+        const enforceRoomCapacity = () => {
+            const totalGuests = counts.adults + counts.children;
+            const requiredRooms = Math.max(1, Math.ceil(totalGuests / MAX_GUESTS_PER_ROOM));
+            if (requiredRooms > LIMITS.rooms.max) {
+                roomError.textContent = `Maximum capacity reached: ${LIMITS.rooms.max * MAX_GUESTS_PER_ROOM} guests across ${LIMITS.rooms.max} rooms.`;
+                return false;
+            }
+            if (counts.rooms < requiredRooms) {
+                counts.rooms = requiredRooms;
+                renderCounters();
+                updateHiddenGuestInputs();
+                updateGuestsText();
+                roomError.textContent = '';
+            } else if (roomError.textContent.includes('Maximum capacity')) {
+                roomError.textContent = '';
+            }
+            return true;
+        };
+
+        const changeCount = (type, delta) => {
+            const limit = LIMITS[type];
+            if (!limit) return;
+            const nextValue = Math.min(limit.max, Math.max(limit.min, counts[type] + delta));
+            if (nextValue === counts[type]) return;
+            const prevValue = counts[type];
+            counts[type] = nextValue;
+            if (guestError) guestError.textContent = '';
+
+            if (type === 'adults' || type === 'children') {
+                if (!enforceRoomCapacity()) {
+                    counts[type] = prevValue;
+                    renderCounters();
+                    updateHiddenGuestInputs();
+                    updateGuestsText();
+                    if (type === 'children') {
+                        updateChildAges(counts.children);
+                    }
+                    validateRooms();
+                    return;
+                }
+            }
+
+            renderCounters();
+            updateHiddenGuestInputs();
+            updateGuestsText();
+            if (type === 'children') {
+                updateChildAges(counts.children);
+            }
+            validateRooms();
+        };
+
+        const closeGuestsPanel = () => {
+            guestsPanel?.classList.remove('active');
+            guestsBtn?.classList.remove('active');
+        };
+
+        const handleGuestsDone = () => {
+            const agesValid = validateChildAges();
+            const roomsValid = validateRooms();
+            if (agesValid && roomsValid) {
+                closeGuestsPanel();
+            }
+        };
+
+        const toggleExtra = () => {
+            toggleSwitch?.classList.toggle('active');
+        };
+
+        const toggleCheckbox = () => {
+            checkbox?.classList.toggle('checked');
+        };
+
+        window.changeCount = changeCount;
+        window.closeGuestsPanel = closeGuestsPanel;
+        window.handleGuestsDone = handleGuestsDone;
+        window.toggleExtra = toggleExtra;
+        window.toggleCheckbox = toggleCheckbox;
+
+        guestsBtn?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            guestsPanel?.classList.toggle('active');
+            guestsBtn.classList.toggle('active');
+        });
+
+        selectAgeBtn?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            selectAgeBtn.classList.toggle('active');
+            selectAgeOptions?.classList.toggle('active');
+        });
+
+        selectAgeOptions?.addEventListener('click', (event) => {
+            const option = event.target.closest('.select-option');
+            if (!option) return;
+            selectAllAges(option.dataset.age);
+            selectAgeBtn?.classList.remove('active');
+            selectAgeOptions.classList.remove('active');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!guestsPanel || !guestsBtn) return;
+            if (!guestsPanel.contains(event.target) && !guestsBtn.contains(event.target)) {
+                closeGuestsPanel();
+            }
+            if (selectAgeOptions && !selectAgeOptions.contains(event.target) && !selectAgeBtn?.contains(event.target)) {
+                selectAgeBtn?.classList.remove('active');
+                selectAgeOptions.classList.remove('active');
+            }
+        });
+
+        renderSelectOptions();
+        updateChildAges(counts.children);
+        renderCounters();
+        updateGuestsText();
+        updateHiddenGuestInputs();
+        validateRooms();
+
+        const initAutocomplete = () => {
+            const locationInput = document.getElementById('location');
+            const dropdown = document.getElementById('autocomplete');
+            if (!locationInput || !dropdown) return;
+            const items = Array.from(dropdown.querySelectorAll('.autocomplete-item'));
+
+            const filterItems = (query) => {
+                const normalized = query.trim().toLowerCase();
+                let visibleCount = 0;
+                items.forEach(item => {
+                    const value = (item.dataset.value || item.textContent).toLowerCase();
+                    const isMatch = !normalized || value.includes(normalized);
+                    item.style.display = isMatch ? 'flex' : 'none';
+                    if (isMatch) visibleCount += 1;
+                });
+                dropdown.classList.toggle('active', visibleCount > 0);
+            };
+
+            locationInput.addEventListener('focus', () => {
+                filterItems(locationInput.value);
+            });
+
+            locationInput.addEventListener('input', () => {
+                filterItems(locationInput.value);
+            });
+
+            locationInput.addEventListener('blur', () => {
+                setTimeout(() => dropdown.classList.remove('active'), 120);
+            });
+
+            dropdown.addEventListener('mousedown', (event) => {
+                const item = event.target.closest('.autocomplete-item');
+                if (!item) return;
+                event.preventDefault();
+                locationInput.value = item.dataset.value || item.textContent.trim();
+                dropdown.classList.remove('active');
+            });
+        };
+
+        initAutocomplete();
 
         if (searchForm) {
             searchForm.addEventListener('submit', function(e) {
@@ -565,18 +995,17 @@
                     e.preventDefault();
                     checkOutInput.value = checkInInput.value;
                     checkOutInput.focus();
+                    updateDateDisplays();
                     return;
                 }
 
-                if (!ensureGuestTotalsMatch()) {
+                if (!validateRooms()) {
                     e.preventDefault();
                     return;
                 }
 
-                validateRooms();
-                if (roomError && roomError.textContent) {
+                if (!validateChildAges()) {
                     e.preventDefault();
-                    roomsInput.focus();
                     return;
                 }
 
@@ -585,247 +1014,7 @@
                 window.location.href = `${searchForm.action}?${params.toString()}`;
             });
         }
-
-        // Guests, adults, children, rooms validation (automated)
-        const guestsInput = document.getElementById('guests');
-        const adultsInput = document.getElementById('adults');
-        const childrenInput = document.getElementById('children');
-        const roomsInput = document.getElementById('rooms');
-        const guestError = document.getElementById('guest-error');
-        const roomError = document.getElementById('room-error');
-
-        const ROOM_LIMIT = 10;
-        const MAX_ADULTS_PER_ROOM = 3;
-        const MAX_CHILDREN_PER_ROOM = 1;
-        const MAX_GUESTS_PER_ROOM = MAX_ADULTS_PER_ROOM + MAX_CHILDREN_PER_ROOM;
-
-        const sanitizeDigits = (input, maxValue = null) => {
-            if (!input) return '';
-            let digits = input.value.replace(/[^0-9]/g, '');
-            if (maxValue !== null && digits !== '') {
-                const parsed = parseInt(digits, 10);
-                if (!isNaN(parsed) && parsed > maxValue) {
-                    digits = maxValue.toString();
-                }
-            }
-            if (input.value !== digits) input.value = digits;
-            return digits;
-        };
-
-        const readValue = (input, { allowEmpty = false, maxValue = null } = {}) => {
-            const digits = sanitizeDigits(input, maxValue);
-            if (digits === '') return allowEmpty ? null : 0;
-            return parseInt(digits, 10);
-        };
-
-        const enforceBoundsOnBlur = (input, min, max = null) => {
-            if (!input) return min;
-            let value = readValue(input, { allowEmpty: true, maxValue: max });
-            if (value === null || isNaN(value)) value = min;
-            if (value < min) value = min;
-            if (max !== null && value > max) value = max;
-            input.value = value;
-            return value;
-        };
-
-        const calculateMinRooms = (adults, children, totalGuests) => {
-            const byAdults = Math.ceil(adults / MAX_ADULTS_PER_ROOM);
-            const byChildren = children > 0 ? Math.ceil(children / MAX_CHILDREN_PER_ROOM) : 0;
-            const byCapacity = Math.ceil(totalGuests / MAX_GUESTS_PER_ROOM);
-            return Math.max(1, byAdults, byChildren, byCapacity);
-        };
-
-        const validateRooms = (adultsOverride = null, childrenOverride = null) => {
-            if (!roomsInput) return;
-            const adults = adultsOverride ?? Math.max(1, readValue(adultsInput));
-            const children = childrenOverride ?? Math.max(0, readValue(childrenInput));
-            const totalGuests = adults + children;
-
-            const minRooms = calculateMinRooms(adults, children, totalGuests);
-            let roomsVal = readValue(roomsInput, { allowEmpty: true, maxValue: ROOM_LIMIT });
-            let message = '';
-
-            if (roomsVal === null) return; // wait for user input
-
-            if (minRooms > ROOM_LIMIT) {
-                roomsVal = ROOM_LIMIT;
-                message = `Guest count exceeds maximum (${ROOM_LIMIT} rooms, ${MAX_ADULTS_PER_ROOM} adults + ${MAX_CHILDREN_PER_ROOM} child per room). Reduce guests.`;
-            } else {
-                if (roomsVal < minRooms) {
-                    roomsVal = minRooms;
-                    message = `Need at least ${minRooms} room${minRooms > 1 ? 's' : ''} for current guests.`;
-                }
-                if (roomsVal > ROOM_LIMIT) {
-                    roomsVal = ROOM_LIMIT;
-                    message = `Maximum ${ROOM_LIMIT} rooms per booking.`;
-                }
-            }
-
-            roomsInput.value = roomsVal;
-            if (roomError) roomError.textContent = message;
-        };
-
-        const distributeFromGuests = (totalGuests) => {
-            const guests = Math.max(1, totalGuests);
-            let adults = readValue(adultsInput, { allowEmpty: true });
-            let children = readValue(childrenInput, { allowEmpty: true });
-            if (adults === null && children === null) {
-                adults = 0;
-                children = 0;
-            } else {
-                adults = Math.max(0, Math.min(adults ?? 0, guests));
-                children = Math.max(0, Math.min(children ?? 0, guests - adults));
-            }
-            if (adults + children > guests) {
-                if (adults > guests) {
-                    adults = guests;
-                    children = 0;
-                } else {
-                    children = guests - adults;
-                }
-            }
-            adultsInput.value = adults;
-            childrenInput.value = children;
-            guestsInput.value = guests;
-            if (guestError) guestError.textContent = '';
-            validateRooms(adults, children);
-        };
-
-        adultsInput?.addEventListener('input', () => {
-            // Allow user to erase and type any value, do not auto-fill or clamp
-            validateRooms(
-                readValue(adultsInput, { allowEmpty: true }) ?? 0,
-                readValue(childrenInput, { allowEmpty: true }) ?? 0
-            );
-        });
-
-        adultsInput?.addEventListener('blur', () => {
-            const guests = readValue(guestsInput, { allowEmpty: true });
-            let adults = enforceBoundsOnBlur(adultsInput, 0, guests);
-            let children = readValue(childrenInput, { allowEmpty: true });
-            adults = Math.max(0, Math.min(adults ?? 0, guests));
-            children = Math.max(0, Math.min(children ?? 0, guests - adults));
-            if (adults + children > guests) {
-                children = guests - adults;
-            }
-            adultsInput.value = adults;
-            childrenInput.value = children;
-            validateRooms(adults, children);
-        });
-
-        childrenInput?.addEventListener('input', () => {
-            const guests = readValue(guestsInput, { allowEmpty: true });
-            let adults = readValue(adultsInput, { allowEmpty: true });
-            let children = readValue(childrenInput, { allowEmpty: true });
-            if (adults === null && children === null) {
-                adultsInput.value = 0;
-                childrenInput.value = 0;
-                validateRooms(0, 0);
-                return;
-            }
-            children = Math.max(0, Math.min(children ?? 0, guests));
-            adults = Math.max(0, Math.min(adults ?? 0, guests - children));
-            if (adults + children > guests) {
-                adults = guests - children;
-            }
-            adultsInput.value = adults;
-            childrenInput.value = children;
-            validateRooms(adults, children);
-        });
-
-        childrenInput?.addEventListener('blur', () => {
-            const guests = readValue(guestsInput, { allowEmpty: true });
-            let children = enforceBoundsOnBlur(childrenInput, 0, guests);
-            let adults = readValue(adultsInput, { allowEmpty: true });
-            children = Math.max(0, Math.min(children ?? 0, guests));
-            adults = Math.max(0, Math.min(adults ?? 0, guests - children));
-            if (adults + children > guests) {
-                adults = guests - children;
-            }
-            adultsInput.value = adults;
-            childrenInput.value = children;
-            validateRooms(adults, children);
-        });
-
-        // Remove syncGuestsFromBreakdown and all logic that updates guests from adults/children
-        // Only update adults/children when guest count changes
-        guestsInput?.addEventListener('input', () => {
-            const value = readValue(guestsInput, { allowEmpty: true });
-            if (value === null) return;
-            distributeFromGuests(value);
-        });
-
-        guestsInput?.addEventListener('blur', () => {
-            const value = enforceBoundsOnBlur(guestsInput, 1);
-            distributeFromGuests(value);
-        });
-
-        adultsInput?.addEventListener('input', () => {
-            const guests = readValue(guestsInput, { allowEmpty: true });
-            // Clamp adults to [1, guests]
-            let value = readValue(adultsInput, { allowEmpty: true });
-            if (value === null) value = 1;
-            value = Math.max(1, Math.min(value, guests));
-            adultsInput.value = value;
-            childrenInput.value = Math.max(0, guests - value);
-            validateRooms(value, guests - value);
-        });
-
-        adultsInput?.addEventListener('blur', () => {
-            const guests = readValue(guestsInput, { allowEmpty: true });
-            let value = enforceBoundsOnBlur(adultsInput, 1);
-            value = Math.max(1, Math.min(value, guests));
-            adultsInput.value = value;
-            childrenInput.value = Math.max(0, guests - value);
-            validateRooms(value, guests - value);
-        });
-
-        childrenInput?.addEventListener('input', () => {
-            const guests = readValue(guestsInput, { allowEmpty: true });
-            let value = readValue(childrenInput, { allowEmpty: true });
-            if (value === null) value = 0;
-            value = Math.max(0, Math.min(value, guests - 1));
-            childrenInput.value = value;
-            adultsInput.value = Math.max(1, guests - value);
-            validateRooms(guests - value, value);
-        });
-
-        childrenInput?.addEventListener('blur', () => {
-            const guests = readValue(guestsInput, { allowEmpty: true });
-            let value = enforceBoundsOnBlur(childrenInput, 0);
-            value = Math.max(0, Math.min(value, guests - 1));
-            childrenInput.value = value;
-            adultsInput.value = Math.max(1, guests - value);
-            validateRooms(guests - value, value);
-        });
-
-        roomsInput?.addEventListener('input', () => {
-            readValue(roomsInput, { allowEmpty: true, maxValue: ROOM_LIMIT });
-            if (roomError) roomError.textContent = '';
-        });
-
-        roomsInput?.addEventListener('blur', () => {
-            enforceBoundsOnBlur(roomsInput, 1, ROOM_LIMIT);
-            validateRooms();
-        });
-
-        const ensureGuestTotalsMatch = () => {
-            if (!guestsInput || !adultsInput || !childrenInput) return true;
-            const guests = enforceBoundsOnBlur(guestsInput, 1);
-            const adults = enforceBoundsOnBlur(adultsInput, 1);
-            const children = enforceBoundsOnBlur(childrenInput, 0);
-            if (guests !== adults + children) {
-                if (guestError) guestError.textContent = 'Guests must equal Adults + Children.';
-                guestsInput.focus();
-                return false;
-            }
-            if (guestError) guestError.textContent = '';
-            distributeFromGuests(guests);
-            return true;
-        };
-
-        // Initialize defaults
-        distributeFromGuests(readValue(guestsInput) || 1);
     </script>
+{% endblock %}
 </body>
 </html>

@@ -30,23 +30,27 @@
         <div class="flex items-center justify-between mb-6">
             <div>
                 <p class="chart-label">Total Visitors</p>
-                <h4 class="chart-title">Last 3 months</h4>
-            </div>
-            <div class="btn-group btn-group-sm" role="group">
-                <button class="btn btn-outline-peach active">Last 3 months</button>
-                <button class="btn btn-outline-peach">Last 30 days</button>
-                <button class="btn btn-outline-peach">Last 7 days</button>
+                <h4 class="chart-title">{{ chart_data.range_label|default:"Last 12 weeks" }}</h4>
+                <p class="text-sm text-muted">Bookings tracked: {{ chart_data.total|default:0 }}</p>
             </div>
         </div>
-        <div class="chart-placeholder">
-            {% include "master/partials/chart_wave.svg" %}
+        <div class="chart-placeholder chart-bars">
+            {% for point in chart_data.points %}
+            <div class="chart-bar">
+                <span class="bar" style="height: {{ point.height_px|default:0 }}px;"></span>
+                <span class="value">{{ point.value }}</span>
+                <span class="label">{{ point.label }}</span>
+            </div>
+            {% empty %}
+            <p class="text-muted text-sm">No booking activity yet.</p>
+            {% endfor %}
         </div>
     </div>
 
     <div class="panel-card">
         <div class="flex items-center justify-between mb-4">
             <h4 class="chart-label">Recent Bookings</h4>
-            <a href="{% url 'master:hotels' %}" class="text-xs text-muted">View all</a>
+            <a href="{% url 'master:bookings' %}" class="text-xs text-muted">View all</a>
         </div>
         <ul class="timeline">
             {% for booking in latest_bookings %}
@@ -63,4 +67,45 @@
         </ul>
     </div>
 </section>
+<style>
+    .chart-bars {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+        gap: 1rem;
+        align-items: end;
+        min-height: 180px;
+    }
+    .chart-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.75rem;
+        height: 150px;
+        justify-content: flex-end;
+    }
+    .chart-bar .bar {
+        width: 14px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #fbcf98, #c8915f);
+        display: block;
+        min-height: 0;
+        transition: height 0.4s ease;
+    }
+    .chart-bar .value {
+        color: #fff;
+        font-weight: 600;
+    }
+    .chart-bar .label {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        color: rgba(255,255,255,0.6);
+    }
+    @media (max-width: 768px) {
+        .chart-bar .label {
+            writing-mode: horizontal-tb;
+            transform: none;
+        }
+    }
+</style>
 {% endblock %}

@@ -1,0 +1,139 @@
+{% extends "master/base.html" %}
+{% block title %}Bookings · Dwarka Master{% endblock %}
+{% block page_heading %}Bookings{% endblock %}
+{% block content %}
+<section class="flex flex-col gap-6">
+    <div class="stat-card">
+        <form method="get" class="grid gap-4 md:grid-cols-4">
+            <div class="md:col-span-2">
+                <label class="text-xs uppercase tracking-[0.2em] text-muted mb-2 block">Search</label>
+                <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Booking ID, hotel or user" class="form-control form-control-dark">
+            </div>
+            <div>
+                <label class="text-xs uppercase tracking-[0.2em] text-muted mb-2 block">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All statuses</option>
+                    {% for code, label in status_choices %}
+                    <option value="{{ code }}" {% if request.GET.status == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex items-end gap-3">
+                <button type="submit" class="btn btn-peach w-full">Filter</button>
+                <a href="{% url 'master:bookings' %}" class="btn btn-outline-peach">Reset</a>
+            </div>
+        </form>
+        <div class="flex items-center justify-between mt-6">
+            <p class="text-sm text-muted">Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ page_obj.paginator.count }} bookings</p>
+        </div>
+    </div>
+
+    <div class="table-card bookings-table">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Booking</th>
+                        <th>Guest</th>
+                        <th>Hotel / Room</th>
+                        <th>Dates</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Placed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td class="fw-semibold text-light">{{ booking.booking_id }}</td>
+                        <td>
+                            {% if booking.user %}
+                                <span class="text-light">{{ booking.user.get_full_name|default:booking.user.username }}</span>
+                                <p class="text-xs text-muted">{{ booking.user.email }}</p>
+                            {% else %}
+                                <span class="text-muted">Guest checkout</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <p class="fw-semibold text-light">{{ booking.hotel.name }}</p>
+                            <p class="text-xs text-muted">{{ booking.room_type.name }}</p>
+                        </td>
+                        <td>
+                            <p class="text-light">{{ booking.check_in|date:"M d" }} → {{ booking.check_out|date:"M d" }}</p>
+                            <p class="text-xs text-muted">{{ booking.nights }} nights · {{ booking.num_rooms }} room(s)</p>
+                        </td>
+                        <td class="text-light">₹{{ booking.total_amount }}</td>
+                        <td>
+                            <span class="badge-status {% if booking.status == 'confirmed' %}badge-active{% elif booking.status == 'cancelled' %}badge-inactive{% else %}badge-pending{% endif %}">
+                                {{ booking.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="text-light">{{ booking.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">No bookings found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if is_paginated %}
+        <div class="flex items-center justify-between mt-4">
+            <p class="text-sm text-muted">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</p>
+            <div class="btn-group" role="group">
+                {% if page_obj.has_previous %}
+                <a class="btn btn-outline-peach" href="?page={{ page_obj.previous_page_number }}">Prev</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a class="btn btn-outline-peach" href="?page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+<style>
+    .bookings-table {
+        background: #181c24;
+        border-radius: 1.25rem;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+        padding: 1.5rem 1rem;
+    }
+    .bookings-table table {
+        color: #f5f5f5;
+        background: #181c24 !important;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .bookings-table table *,
+    .bookings-table thead,
+    .bookings-table tbody,
+    .bookings-table tr {
+        background: #181c24 !important;
+    }
+    .bookings-table thead {
+        background: #11141c !important;
+    }
+    .bookings-table thead tr {
+        background: #11141c !important;
+    }
+    .bookings-table th {
+        color: #ffd9a3;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+    }
+    .bookings-table tbody tr {
+        background: #181c24;
+    }
+    .bookings-table td {
+        color: #dcdcdc;
+        border-color: #232734;
+    }
+    .bookings-table .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+</style>
+{% endblock %}

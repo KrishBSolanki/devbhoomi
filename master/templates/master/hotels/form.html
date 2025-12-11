@@ -1,4 +1,5 @@
 {% extends "master/base.html" %}
+{% load master_forms %}
 {% block title %}{% if form.instance.pk %}Edit {{ form.instance.name }}{% else %}Create Hotel{% endif %} · Dwarka Master{% endblock %}
 {% block page_heading %}{% if form.instance.pk %}Edit Hotel{% else %}Create Hotel{% endif %}{% endblock %}
 {% block content %}
@@ -6,7 +7,7 @@
     <form method="post" enctype="multipart/form-data" class="grid gap-6 md:grid-cols-2">
         {% csrf_token %}
         {% for field in form %}
-        <div class="flex flex-col gap-2 col-span-{{ field.field.widget.attrs.get('data-span', '2') }}">
+        <div class="flex flex-col gap-2 col-span-{{ field|widget_attr:'data-span'|default:'2' }}">
             <label class="text-xs uppercase tracking-[0.2em] text-muted">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
             {{ field }}
             {% if field.help_text %}<p class="text-xs text-muted">{{ field.help_text }}</p>{% endif %}

@@ -21,6 +21,8 @@ class BaseStyledModelForm(forms.ModelForm):
                 field.widget.attrs.update({
                     "class": "form-control form-control-dark",
                 })
+            # Expose an easy-to-use span value for templates without custom tags
+            field.span = field.widget.attrs.get("data-span", "2")
 
 
 class HotelForm(BaseStyledModelForm):
